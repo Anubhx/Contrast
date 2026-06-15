@@ -1,9 +1,15 @@
 import { notFound } from "next/navigation"
-import { AuditResults } from "./AuditResults"
+import { ResultsLayout } from "@/components/results/ResultsLayout"
 import { AuditResult } from "@/lib/types"
 
+import { headers } from "next/headers"
+
 async function getAuditResult(id: string): Promise<AuditResult | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
+  const headersList = headers()
+  const host = headersList.get('host') || 'localhost:3000'
+  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
+  const baseUrl = `${protocol}://${host}`
+  
   try {
     const res = await fetch(`${baseUrl}/api/audit/${id}`, { 
       cache: 'no-store' // We want fresh data while polling/loading
@@ -34,5 +40,5 @@ export default async function AuditPage({ params }: { params: { id: string } }) 
     notFound()
   }
 
-  return <AuditResults result={result} />
+  return <ResultsLayout result={result} />
 }

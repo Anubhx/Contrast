@@ -81,7 +81,7 @@ body {
   background-image: linear-gradient(var(--brd) 1px, transparent 1px), linear-gradient(90deg, var(--brd) 1px, transparent 1px);
   background-size: 48px 48px;
   /* Adjust this opacity to make the grid darker or lighter (0.1 to 1.0) */
-  opacity: 1.8;
+  opacity: 0.8;
   pointer-events: none;
   z-index: 0;
 }
