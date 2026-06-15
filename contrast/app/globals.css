@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Match contrast-v1.html colors exactly */
+  --white: #ffffff;
+  --off: #FAFAF8;
+  --surf: #F4F3EF;
+  --surf2: #ECEAE4;
+  --brd: #E2E0D8;
+  --brd2: #C8C5BA;
+  
+  --ink: #16150F;
+  --ink2: #4A4840;
+  --ink3: #8A8880;
+  --ink4: #B8B6AE;
+  
+  --acc: #2D6A2D;
+  --acc-l: #F0F7F0;
+  --acc-m: #4A9E4A;
+  
+  --ex: #1A7A42;
+  --ex-bg: #EBF5EE;
+  
+  --gd: #8A5E00;
+  --gd-bg: #FEF7E6;
+  
+  --wn: #CC4400;
+  --wn-bg: #FEF0EA;
+  
+  --cr: #B31B1B;
+  --cr-bg: #FDEAEA;
+
+  /* Semantic mappings for our Tailwind config */
+  --color-bg-base: var(--white);
+  --color-bg-elevated: var(--white);
+  --color-bg-overlay: var(--white);
+  --color-bg-subtle: var(--surf);
+
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--ink2);
+  --color-text-tertiary: var(--ink3);
+
+  --color-accent: var(--acc);
+  --color-accent-dim: var(--acc-l);
+  --color-accent-hover: #1A4D1A;
+
+  --color-grade-excellent: var(--ex);
+  --color-grade-good: var(--gd);
+  --color-grade-warn: var(--wn);
+  --color-grade-critical: var(--cr);
+
+  --color-border: var(--brd);
+  --color-border-subtle: var(--brd2);
+  --color-ring-track: var(--brd);
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  
+  --sh0: 0 1px 2px rgba(16,15,10,.06);
+  --sh1: 0 2px 8px rgba(16,15,10,.08),0 1px 2px rgba(16,15,10,.04);
+  --sh2: 0 4px 20px rgba(16,15,10,.10),0 2px 6px rgba(16,15,10,.06);
+}
+
+body {
+  background: var(--white); /* Application is full screen now */
+  color: var(--ink);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grid background for the landing page */
+.gbg {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(var(--brd) 1px, transparent 1px), linear-gradient(90deg, var(--brd) 1px, transparent 1px);
+  background-size: 48px 48px;
+  /* Adjust this opacity to make the grid darker or lighter (0.1 to 1.0) */
+  opacity: 1.8;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.gfade {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 70% at 50% -10%, rgba(255,255,255,0) 0%, rgba(255,255,255,.9) 55%, #fff 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.print-bg-force {
+  -webkit-print-color-adjust: exact !important;
+  color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+@media print {
+  .hide-on-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .gbg, .gfade { display: none !important; }
+}

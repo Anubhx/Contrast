@@ -1,0 +1,38 @@
+import { notFound } from "next/navigation"
+import { AuditResults } from "./AuditResults"
+import { AuditResult } from "@/lib/types"
+
+async function getAuditResult(id: string): Promise<AuditResult | null> {
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
+  try {
+    const res = await fetch(`${baseUrl}/api/audit/${id}`, { 
+      cache: 'no-store' // We want fresh data while polling/loading
+    })
+    if (!res.ok) return null
+    return res.json()
+  } catch (e) {
+    console.error("Failed to fetch audit result:", e)
+    return null
+  }
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const result = await getAuditResult(params.id)
+  if (!result) return { title: "Audit Not Found — Contrast" }
+  
+  return {
+    title: `${result.url} scored ${result.scores.overall}/100 — Contrast`,
+    // In Phase 2:
+    // openGraph: { images: [`/api/og/${params.id}`] }
+  }
+}
+
+export default async function AuditPage({ params }: { params: { id: string } }) {
+  const result = await getAuditResult(params.id)
+  
+  if (!result) {
+    notFound()
+  }
+
+  return <AuditResults result={result} />
+}
