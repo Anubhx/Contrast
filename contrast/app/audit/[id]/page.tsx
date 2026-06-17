@@ -2,13 +2,8 @@ import { notFound } from "next/navigation"
 import { ResultsLayout } from "@/components/results/ResultsLayout"
 import { AuditResult } from "@/lib/types"
 
-import { headers } from "next/headers"
-
 async function getAuditResult(id: string): Promise<AuditResult | null> {
-  const headersList = headers()
-  const host = headersList.get('host') || 'localhost:3000'
-  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
-  const baseUrl = `${protocol}://${host}`
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
   
   try {
     const res = await fetch(`${baseUrl}/api/audit/${id}`, { 

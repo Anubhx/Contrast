@@ -168,7 +168,7 @@ export async function POST(req: Request) {
       issuesCount: issues.length
     });
 
-    const id = Math.random().toString(36).substring(7);
+    const id = crypto.randomUUID();
 
     const auditResponse = {
       id,
