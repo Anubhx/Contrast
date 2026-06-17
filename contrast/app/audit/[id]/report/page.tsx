@@ -2,6 +2,7 @@
 
 import { AuditResult } from "@/lib/types"
 import { getGradeText, getGradeColor } from "@/lib/utils"
+import { Footer } from "@/components/layout/Footer"
 
 import { useEffect, useState } from "react"
 
@@ -39,8 +40,9 @@ export default function ReportPage({ params }: { params: { id: string } }) {
   )
 
   return (
-    <div className="bg-white min-h-screen text-[#16150F] font-sans p-8 print:p-0 max-w-[794px] mx-auto relative">
-      <div className="absolute top-8 right-8 print:hidden hide-on-print">
+    <div className="bg-white min-h-screen flex flex-col font-sans">
+      <div className="flex-1 text-[#16150F] p-8 print:p-0 max-w-[794px] w-full mx-auto relative">
+        <div className="absolute top-8 right-8 print:hidden hide-on-print">
         <button 
           onClick={() => window.print()}
           className="text-[12px] font-sans px-[16px] py-[8px] rounded-[8px] border border-border bg-white text-text-primary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[6px] shadow-sm font-medium"
@@ -134,7 +136,10 @@ export default function ReportPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
+        </div>
+
       </div>
+      <Footer />
     </div>
   )
 }

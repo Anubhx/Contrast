@@ -16,7 +16,12 @@ GEMINI_API_KEY="your_gemini_api_key_here"
 NEXT_PUBLIC_SUPABASE_URL="your_supabase_project_url_here"
 SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key_here"
 
-# 3. Base URL
+# 3. Browserless
+# Required to run headless Chrome in the cloud instead of inside Vercel
+# Get this from: https://www.browserless.io/
+BROWSERLESS_API_KEY="your_browserless_api_key_here"
+
+# 4. Base URL
 # Required for absolute URL resolution in certain routes (like the report page)
 NEXT_PUBLIC_URL="http://localhost:3000"
 ```

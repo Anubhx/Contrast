@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase';
 import crypto from 'crypto';
 import { cleanAxeViolations } from '@/lib/cleanAxeIssue';
-import { chromium } from 'playwright';
+import { connectToBrowserless } from '@/lib/browserless';
 import { AxeBuilder } from '@axe-core/playwright';
 import { detectButtonDrift } from '@/lib/detectors/buttonDrift';
 import { detectSpacingDrift } from '@/lib/detectors/spacingDrift';
@@ -75,69 +75,77 @@ export async function POST(req: Request) {
       console.warn('Supabase caching check failed', e);
     }
 
-    const browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    
-    // 15 second timeout as required
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
+    let browser;
+    let extractedData;
+    let accessibilityScanResults;
 
-    // Extract DOM data
-    const extractedData = await page.evaluate(() => {
-      // Buttons
-      const buttonElements = Array.from(document.querySelectorAll('button, a[role="button"], input[type="button"], input[type="submit"]'));
-      const buttons = buttonElements.map(el => {
-        const style = window.getComputedStyle(el);
+    try {
+      browser = await connectToBrowserless();
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      
+      // 15 second timeout as required
+      await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
+
+      // Extract DOM data
+      extractedData = await page.evaluate(() => {
+        // Buttons
+        const buttonElements = Array.from(document.querySelectorAll('button, a[role="button"], input[type="button"], input[type="submit"]'));
+        const buttons = buttonElements.map(el => {
+          const style = window.getComputedStyle(el);
+          return {
+            borderRadius: style.borderRadius,
+            padding: style.padding,
+            backgroundColor: style.backgroundColor,
+            borderStyle: style.borderStyle
+          };
+        });
+
+        // Spacing, Typography, Colors
+        const allElements = Array.from(document.querySelectorAll('*'));
+        const spacingValues: number[] = [];
+        const textElements: {fontFamily: string, fontSize: string, fontWeight: string}[] = [];
+        const colors = new Set<string>();
+
+        allElements.forEach(el => {
+          const style = window.getComputedStyle(el);
+          
+          // Spacing
+          ['marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight'].forEach(prop => {
+            const cssProp = prop.replace(/([A-Z])/g, '-$1').toLowerCase();
+            const val = parseFloat(style.getPropertyValue(cssProp));
+            if (!isNaN(val) && val > 0) spacingValues.push(val);
+          });
+
+          // Typography (only text-containing elements with no children)
+          if (el.textContent && el.textContent.trim().length > 0 && el.children.length === 0) {
+            textElements.push({
+              fontFamily: style.fontFamily,
+              fontSize: style.fontSize,
+              fontWeight: style.fontWeight
+            });
+          }
+
+          // Colors
+          if (style.color && style.color !== 'rgba(0, 0, 0, 0)') colors.add(style.color);
+          if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') colors.add(style.backgroundColor);
+        });
+
         return {
-          borderRadius: style.borderRadius,
-          padding: style.padding,
-          backgroundColor: style.backgroundColor,
-          borderStyle: style.borderStyle
+          buttons,
+          spacing: spacingValues,
+          typography: textElements,
+          colors: Array.from(colors)
         };
       });
 
-      // Spacing, Typography, Colors
-      const allElements = Array.from(document.querySelectorAll('*'));
-      const spacingValues: number[] = [];
-      const textElements: {fontFamily: string, fontSize: string, fontWeight: string}[] = [];
-      const colors = new Set<string>();
-
-      allElements.forEach(el => {
-        const style = window.getComputedStyle(el);
-        
-        // Spacing
-        ['marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight'].forEach(prop => {
-          const cssProp = prop.replace(/([A-Z])/g, '-$1').toLowerCase();
-          const val = parseFloat(style.getPropertyValue(cssProp));
-          if (!isNaN(val) && val > 0) spacingValues.push(val);
-        });
-
-        // Typography (only text-containing elements with no children)
-        if (el.textContent && el.textContent.trim().length > 0 && el.children.length === 0) {
-          textElements.push({
-            fontFamily: style.fontFamily,
-            fontSize: style.fontSize,
-            fontWeight: style.fontWeight
-          });
-        }
-
-        // Colors
-        if (style.color && style.color !== 'rgba(0, 0, 0, 0)') colors.add(style.color);
-        if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') colors.add(style.backgroundColor);
-      });
-
-      return {
-        buttons,
-        spacing: spacingValues,
-        typography: textElements,
-        colors: Array.from(colors)
-      };
-    });
-
-    // Run axe-core
-    const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
-    
-    await browser.close();
+      // Run axe-core
+      accessibilityScanResults = await new AxeBuilder({ page }).analyze();
+    } finally {
+      if (browser) {
+        await browser.close().catch(e => console.error('Failed to close browser', e));
+      }
+    }
 
     // Map axe violations to AuditIssue
     const issues = cleanAxeViolations(accessibilityScanResults.violations);
