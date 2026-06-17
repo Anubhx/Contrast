@@ -1,4 +1,4 @@
-import { chromium, Browser } from 'playwright';
+import { chromium, Browser } from 'playwright-core';
 
 export async function connectToBrowserless(retries = 1): Promise<Browser> {
   const token = process.env.BROWSERLESS_API_KEY;
