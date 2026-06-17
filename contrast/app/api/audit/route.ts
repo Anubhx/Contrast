@@ -211,7 +211,7 @@ export async function POST(req: Request) {
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours cache
 
-      await supabase.from('audits').insert({
+      const { error } = await supabase.from('audits').insert({
         id,
         url,
         url_hash: urlHash,
@@ -220,8 +220,14 @@ export async function POST(req: Request) {
         result: auditResponse,
         expires_at: expiresAt.toISOString()
       });
+
+      if (error) {
+        console.error('Supabase insertion error details:', error);
+        throw new Error(`Supabase error: ${error.message}`);
+      }
     } catch (e) {
       console.error('Supabase insertion failed', e);
+      return NextResponse.json({ error: e instanceof Error ? e.message : 'Supabase insert failed' }, { status: 500 });
     }
 
     return NextResponse.json({ id });
