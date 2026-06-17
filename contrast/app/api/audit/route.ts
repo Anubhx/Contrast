@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase';
+
+export const dynamic = 'force-dynamic';
 import crypto from 'crypto';
 import { cleanAxeViolations } from '@/lib/cleanAxeIssue';
 import { connectToBrowserless } from '@/lib/browserless';
