@@ -1,49 +1,34 @@
-"use client";
-
-import React from 'react';
-import { Nav } from '@/components/layout/Nav';
-import { Footer } from '@/components/layout/Footer';
-import { useAudit } from '@/hooks/useAudit';
-
-import { LoadingView } from '@/components/landing/LoadingView';
-import { HeroSection } from '@/components/landing/HeroSection';
+import LandingClient from '@/components/landing/LandingClient';
 import { RecentAudits } from '@/components/landing/RecentAudits';
-import { HowItWorks } from '@/components/landing/HowItWorks';
-import { WhatWeCheck } from '@/components/landing/WhatWeCheck';
+import { createAdminClient } from '@/lib/supabase';
+import { RecentAuditData } from '@/lib/types';
 
-export default function Home() {
-  const { triggerAudit, state, step, error } = useAudit();
+export default async function Home() {
+  let recentAudits: RecentAuditData[] = [];
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+      .from('audits')
+      .select('domain, overall_score, result, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10);
+      
+    if (data) {
+      recentAudits = data.map((audit) => ({
+        domain: audit.domain,
+        score: audit.overall_score || 0,
+        issues: audit.result?.issues?.length || 0,
+        date: new Date(audit.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        color: (audit.overall_score || 0) >= 85 ? '#1A7A42' : (audit.overall_score || 0) >= 70 ? '#8A5E00' : (audit.overall_score || 0) >= 50 ? '#CC4400' : '#B31B1B'
+      }));
+    }
+  } catch (e) {
+    console.warn('Failed to fetch recent audits from Supabase', e);
+  }
 
   return (
-    <div className="flex flex-col min-h-screen relative">
-      <Nav />
-      
-      <main className="flex-1 w-full relative">
-        {state === 'loading' ? (
-          <LoadingView step={step} />
-        ) : (
-          <>
-            {/* 
-              LAYOUT WIDTH EXPERIMENTATION: 
-              Change "max-w-[1600px]" below to a larger number (like 1800px) 
-              or "w-full" if you want it to stretch completely to the edges! 
-            */}
-            <div className="max-w-[1600px] mx-auto w-full relative">
-              <HeroSection 
-                onAuditSubmit={triggerAudit} 
-                loading={false} 
-                error={error} 
-              />
-              <RecentAudits />
-            </div>
-            
-            <HowItWorks />
-            <WhatWeCheck />
-          </>
-        )}
-      </main>
-      
-      <Footer />
-    </div>
+    <LandingClient 
+      recentAuditsNode={<RecentAudits audits={recentAudits} />} 
+    />
   );
 }

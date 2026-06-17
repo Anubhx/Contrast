@@ -1,23 +1,30 @@
-import { notFound } from "next/navigation"
+"use client"
+
 import { AuditResult } from "@/lib/types"
 import { getGradeText, getGradeColor } from "@/lib/utils"
 
-async function getAuditResult(id: string): Promise<AuditResult | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
-  try {
-    const res = await fetch(`${baseUrl}/api/audit/${id}`, { cache: 'no-store' })
-    if (!res.ok) return null
-    return res.json()
-  } catch {
-    return null
-  }
-}
+import { useEffect, useState } from "react"
 
-export default async function ReportPage({ params }: { params: { id: string } }) {
-  const result = await getAuditResult(params.id)
+export default function ReportPage({ params }: { params: { id: string } }) {
+  const [result, setResult] = useState<AuditResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/audit/${params.id}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        setResult(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [params.id]);
   
+  if (loading) {
+    return <div className="p-8 font-mono text-sm text-text-tertiary">Loading report...</div>
+  }
+
   if (!result) {
-    notFound()
+    return <div className="p-8 font-mono text-sm text-text-tertiary">Report not found.</div>
   }
 
   const dateObj = new Date(result.auditedAt)
@@ -32,9 +39,21 @@ export default async function ReportPage({ params }: { params: { id: string } })
   )
 
   return (
-    <div className="bg-white min-h-screen text-[#16150F] font-sans p-8 print:p-0 max-w-[794px] mx-auto">
+    <div className="bg-white min-h-screen text-[#16150F] font-sans p-8 print:p-0 max-w-[794px] mx-auto relative">
+      <div className="absolute top-8 right-8 print:hidden hide-on-print">
+        <button 
+          onClick={() => window.print()}
+          className="text-[12px] font-sans px-[16px] py-[8px] rounded-[8px] border border-border bg-white text-text-primary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[6px] shadow-sm font-medium"
+        >
+          <svg viewBox="0 0 13 13" className="w-[13px] h-[13px] stroke-current fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round">
+            <path d="M3.5 4V1.5h6V4M3 9.5H1.5v-5h10v5H10M3 7.5h7v4H3v-4z"/>
+          </svg>
+          Print PDF
+        </button>
+      </div>
+
       {/* Container simulating A4 for screen */}
-      <div className="bg-white p-[64px_72px] border border-border rounded-[14px] shadow-sm print:border-none print:shadow-none print:p-0">
+      <div className="bg-white p-[64px_72px] border border-border rounded-[14px] shadow-sm print:border-none print:shadow-none print:p-0 mt-12 print:mt-0">
         
         {/* Header */}
         <div className="flex justify-between items-start pb-[24px] border-b-[1.5px] border-[#16150F] mb-[40px]">

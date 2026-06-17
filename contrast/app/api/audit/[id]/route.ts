@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase'
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
-  // Try to get from mockCache
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cache = (global as any).mockCache
-  if (cache && cache.has(`audit:${params.id}`)) {
-    return NextResponse.json(cache.get(`audit:${params.id}`))
-  }
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from('audits')
+      .select('result')
+      .eq('id', params.id)
+      .single();
 
-  return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (error || !data) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(data.result);
+  } catch (error) {
+    console.error('Fetch error', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
 }

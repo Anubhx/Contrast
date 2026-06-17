@@ -102,6 +102,8 @@ body {
 
 @media print {
   .hide-on-print { display: none !important; }
+  .print\:hidden { display: none !important; }
+  nav, footer, .score-actions { display: none !important; }
   body { background: white !important; color: black !important; }
   .gbg, .gfade { display: none !important; }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { RecentAuditData } from '@/lib/types';
-import { RECENT_AUDITS } from '@/constants/landing';
+// Remove hardcoded import
 
 function ExampleCard({ domain, score, issues, date, color }: RecentAuditData) {
   return (
@@ -23,7 +23,9 @@ function ExampleCard({ domain, score, issues, date, color }: RecentAuditData) {
   );
 }
 
-export function RecentAudits() {
+export function RecentAudits({ audits = [] }: { audits?: RecentAuditData[] }) {
+  if (audits.length === 0) return null;
+
   return (
     <section className="px-[40px] pb-[72px] relative z-10" aria-labelledby="recent-hd">
       <div className="flex items-center justify-between mb-[20px]">
@@ -35,7 +37,7 @@ export function RecentAudits() {
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-[12px]">
-        {RECENT_AUDITS.map((audit) => (
+        {audits.map((audit) => (
           <ExampleCard key={audit.domain} {...audit} />
         ))}
       </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 
 interface ScoreHeaderProps {
   score: number;
@@ -43,6 +43,14 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
   const wT = `${Math.round((scores.typography / totalRaw) * 100)}%`;
   const wS = `${Math.round((scores.spacing / totalRaw) * 100)}%`;
 
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <div className="px-[24px] pt-[28px] pb-[20px] border-b border-border bg-bg-subtle">
       <div className="flex items-start justify-between mb-[20px]">
@@ -56,31 +64,36 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
         </div>
         <div className="flex gap-[8px] hide-on-print">
           <button 
-            className="text-[12px] font-sans px-[14px] py-[6px] rounded-[8px] border border-border bg-white text-text-secondary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[5px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href)
-              alert("Link copied to clipboard")
-            }}
+            className="text-[12px] font-sans px-[14px] py-[6px] rounded-[8px] border border-border bg-white text-text-secondary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[5px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 w-[85px] justify-center"
+            onClick={handleShare}
             aria-label="Share audit result"
           >
-            <svg viewBox="0 0 13 13" aria-hidden="true" className="w-[13px] h-[13px] stroke-current fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round">
-              <circle cx="10" cy="2.5" r="1.5"/>
-              <circle cx="2.5" cy="6.5" r="1.5"/>
-              <circle cx="10" cy="10.5" r="1.5"/>
-              <path d="M4 5.5l4.5-2.5M4 7.5l4.5 2.5"/>
-            </svg>
-            Share
+            {copied ? (
+              <span className="text-text-primary font-medium">Copied!</span>
+            ) : (
+              <>
+                <svg viewBox="0 0 13 13" aria-hidden="true" className="w-[13px] h-[13px] stroke-current fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round">
+                  <circle cx="10" cy="2.5" r="1.5"/>
+                  <circle cx="2.5" cy="6.5" r="1.5"/>
+                  <circle cx="10" cy="10.5" r="1.5"/>
+                  <path d="M4 5.5l4.5-2.5M4 7.5l4.5 2.5"/>
+                </svg>
+                Share
+              </>
+            )}
           </button>
-          <button 
-            className="text-[12px] font-sans px-[14px] py-[6px] rounded-[8px] border border-border bg-white text-text-secondary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[5px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
-            onClick={() => window.print()}
-            aria-label="Download PDF report"
+          <a 
+            href={`${window.location.pathname}/report`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[12px] font-sans px-[14px] py-[6px] rounded-[8px] border border-border bg-white text-text-secondary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[5px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 no-underline"
+            aria-label="Open PDF report"
           >
             <svg viewBox="0 0 13 13" aria-hidden="true" className="w-[13px] h-[13px] stroke-current fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round">
               <path d="M6.5 2v6M4 6l2.5 2.5L9 6M2 10v.5a1 1 0 001 1h7a1 1 0 001-1V10"/>
             </svg>
             PDF
-          </button>
+          </a>
         </div>
       </div>
       

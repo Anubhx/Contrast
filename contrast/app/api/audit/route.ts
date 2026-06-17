@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase';
+import crypto from 'crypto';
+import { cleanAxeViolations } from '@/lib/cleanAxeIssue';
 import { chromium } from 'playwright';
 import { AxeBuilder } from '@axe-core/playwright';
 import { detectButtonDrift } from '@/lib/detectors/buttonDrift';
@@ -7,25 +10,69 @@ import { detectTypographyDrift } from '@/lib/detectors/typographyDrift';
 import { detectColorDrift } from '@/lib/detectors/colorDrift';
 import { calculateScores } from '@/lib/scoring';
 import { explainFindings } from '@/lib/gemini';
-import { AuditIssue } from '@/lib/types';
 
-interface AxeNode {
-  html: string;
-  failureSummary?: string;
-}
-
-interface AxeViolation {
-  id: string;
-  impact?: 'minor' | 'moderate' | 'serious' | 'critical' | null;
-  help: string;
-  nodes: AxeNode[];
-}
 
 export async function POST(req: Request) {
   try {
     const { url } = await req.json();
     if (!url || !url.startsWith('http')) {
       return NextResponse.json({ error: 'Invalid URL. Must start with http or https.' }, { status: 400 });
+    }
+
+    const supabase = createAdminClient();
+
+    // Rate limiting by IP
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+    try {
+      // Basic rate limiting with Supabase
+      // Upsert the row, or increment if exists
+      const { data: rlData } = await supabase
+        .from('rate_limits')
+        .select('*')
+        .eq('ip', ip)
+        .single();
+      
+      const now = new Date();
+      if (rlData) {
+        const windowStart = new Date(rlData.window_start);
+        const hoursPassed = (now.getTime() - windowStart.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursPassed > 1) {
+          // Reset window
+          await supabase.from('rate_limits').update({ request_count: 1, window_start: now.toISOString() }).eq('ip', ip);
+        } else {
+          if (rlData.request_count >= 10) {
+            return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+          }
+          await supabase.from('rate_limits').update({ request_count: rlData.request_count + 1 }).eq('ip', ip);
+        }
+      } else {
+        await supabase.from('rate_limits').insert({ ip, request_count: 1, window_start: now.toISOString() });
+      }
+    } catch (e) {
+      console.warn('Supabase rate limiting failed, continuing without it', e);
+    }
+
+    // Normalize URL for caching
+    const parsedUrl = new URL(url);
+    const normalizedUrl = `${parsedUrl.origin}${parsedUrl.pathname}`.replace(/\/$/, '').toLowerCase();
+    const urlHash = crypto.createHash('sha256').update(normalizedUrl).digest('hex');
+
+    // Check URL cache
+    try {
+      const { data: cachedAudits } = await supabase
+        .from('audits')
+        .select('id, result')
+        .eq('url_hash', urlHash)
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (cachedAudits && cachedAudits.length > 0) {
+        return NextResponse.json({ id: cachedAudits[0].id });
+      }
+    } catch (e) {
+      console.warn('Supabase caching check failed', e);
     }
 
     const browser = await chromium.launch({ headless: true });
@@ -93,27 +140,7 @@ export async function POST(req: Request) {
     await browser.close();
 
     // Map axe violations to AuditIssue
-    const issues: AuditIssue[] = [];
-    (accessibilityScanResults.violations as AxeViolation[]).forEach((v) => {
-      v.nodes.forEach((node) => {
-        let category: AuditIssue['category'] = 'typography';
-        if (v.id.includes('contrast')) category = 'contrast';
-        else if (v.id.includes('alt')) category = 'altText';
-        else if (v.id.includes('aria') || v.id.includes('heading')) category = 'typography';
-
-        let severity: AuditIssue['severity'] = 'info';
-        if (v.impact === 'critical' || v.impact === 'serious') severity = 'critical';
-        else if (v.impact === 'moderate') severity = 'warn';
-
-        issues.push({
-          category,
-          severity,
-          message: v.help,
-          element: node.html.length > 60 ? node.html.substring(0, 60) + '...' : node.html,
-          value: node.failureSummary ? node.failureSummary.split('\n')[0] : 'Violation'
-        });
-      });
-    });
+    const issues = cleanAxeViolations(accessibilityScanResults.violations);
 
     // Run detectors
     const buttonDrift = detectButtonDrift(extractedData.buttons);
@@ -171,11 +198,23 @@ export async function POST(req: Request) {
       }
     };
 
-    // Cache globally for /api/audit/[id] to pick up
-    const globalStore = global as unknown as { mockCache?: Map<string, unknown> };
-    const cache = globalStore.mockCache || new Map<string, unknown>();
-    cache.set(`audit:${id}`, auditResponse);
-    globalStore.mockCache = cache;
+    // Insert into Supabase
+    try {
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours cache
+
+      await supabase.from('audits').insert({
+        id,
+        url,
+        url_hash: urlHash,
+        domain: parsedUrl.hostname,
+        overall_score: scores.overall,
+        result: auditResponse,
+        expires_at: expiresAt.toISOString()
+      });
+    } catch (e) {
+      console.error('Supabase insertion failed', e);
+    }
 
     return NextResponse.json({ id });
 
