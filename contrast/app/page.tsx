@@ -9,12 +9,13 @@ export default async function Home() {
     const supabase = createAdminClient();
     const { data } = await supabase
       .from('audits')
-      .select('domain, overall_score, result, created_at')
+      .select('id, domain, overall_score, result, created_at')
       .order('created_at', { ascending: false })
       .limit(10);
       
     if (data) {
       recentAudits = data.map((audit) => ({
+        id: audit.id,
         domain: audit.domain,
         score: audit.overall_score || 0,
         issues: audit.result?.issues?.length || 0,

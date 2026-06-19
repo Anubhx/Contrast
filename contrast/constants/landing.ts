@@ -9,10 +9,10 @@ export const HERO_BADGES = [
 ];
 
 export const RECENT_AUDITS: RecentAuditData[] = [
-  { domain: 'stripe.com', score: 91, issues: 2, date: 'Jun 14 · 1.2s', color: 'var(--color-grade-excellent)' },
-  { domain: 'linear.app', score: 87, issues: 4, date: 'Jun 14 · 0.9s', color: 'var(--color-grade-excellent)' },
-  { domain: 'zomato.com', score: 63, issues: 11, date: 'Jun 13 · 2.1s', color: 'var(--color-grade-warn)' },
-  { domain: 'swiggy.com', score: 71, issues: 8, date: 'Jun 13 · 1.8s', color: 'var(--color-grade-good)' },
+  { id: 'example-stripe', domain: 'stripe.com', score: 91, issues: 2, date: 'Jun 14 · 1.2s', color: 'var(--color-grade-excellent)' },
+  { id: 'example-linear', domain: 'linear.app', score: 87, issues: 4, date: 'Jun 14 · 0.9s', color: 'var(--color-grade-excellent)' },
+  { id: 'example-zomato', domain: 'zomato.com', score: 63, issues: 11, date: 'Jun 13 · 2.1s', color: 'var(--color-grade-warn)' },
+  { id: 'example-swiggy', domain: 'swiggy.com', score: 71, issues: 8, date: 'Jun 13 · 1.8s', color: 'var(--color-grade-good)' },
 ];
 
 export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [

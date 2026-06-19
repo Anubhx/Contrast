@@ -41,6 +41,7 @@ export interface AuditResult {
 }
 
 export interface RecentAuditData {
+  id: string;
   domain: string;
   score: number;
   issues: number;

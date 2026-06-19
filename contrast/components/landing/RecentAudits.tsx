@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { RecentAuditData } from '@/lib/types';
 // Remove hardcoded import
 
-function ExampleCard({ domain, score, issues, date, color }: RecentAuditData) {
+function ExampleCard({ id, domain, score, issues, date, color }: RecentAuditData) {
   return (
-    <Link href={`/audit/mock-${domain}`} className="block bg-bg-base border border-border rounded-[10px] p-[20px] cursor-pointer transition-all hover:border-border-subtle hover:shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)] hover:-translate-y-[2px] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 no-underline text-text-primary">
+    <Link href={`/audit/${id}`} className="block bg-bg-base border border-border rounded-[10px] p-[20px] cursor-pointer transition-all hover:border-border-subtle hover:shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)] hover:-translate-y-[2px] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 no-underline text-text-primary">
       <div className="flex items-start justify-between mb-[14px]">
         <span className="text-[13px] font-medium">{domain}</span>
         <span className="font-mono text-[22px] font-medium leading-none" style={{ color }}>
