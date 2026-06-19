@@ -10,38 +10,29 @@ export function QuickWins({ wins }: QuickWinsProps) {
   if (realWins.length === 0) return null
 
   return (
-    <div className="mb-[40px]">
-      <div className="flex items-center justify-between mb-[18px]">
-        <h2 className="text-[16px] font-semibold text-text-primary tracking-[-0.01em] m-0">
-          Quick Wins
-        </h2>
+    <section className="mb-[28px]">
+      <div className="text-[9px] font-mono tracking-widest uppercase text-text-quaternary mb-[10px]">
+        Quick Wins
       </div>
 
-      <div className="flex flex-col divide-y divide-[#F0EEE8]">
+      <div className="border border-border rounded-[5px] divide-y divide-border overflow-hidden">
         {realWins.slice(0, 2).map((issue, idx) => (
-          <div key={idx} className="flex items-start gap-[12px] py-[12px]">
-            <div className="text-[9px] font-mono px-[6px] py-[2px] rounded-[4px] border whitespace-nowrap mt-[2px] tracking-[0.04em] uppercase text-grade-warn border-grade-warn bg-grade-warn/10">
-              Warn
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px] text-text-primary font-medium leading-[1.4] mb-[2px]">
-                {issue.message}
-              </div>
-              {/* Only show element if it's a real selector */}
-              {issue.element && issue.element.trim().length > 0 && (
-                <div className="text-[11px] font-mono text-text-tertiary truncate" title={issue.element}>
-                  {issue.element}
-                </div>
+          <div key={idx} className="flex items-center gap-[10px] px-[14px] py-[10px] bg-white hover:bg-[#FAFAF8] transition-colors">
+            <div className="w-[6px] h-[6px] rounded-full shrink-0 bg-grade-warn" />
+            <div className="flex-1 text-[12px] text-text-primary font-medium leading-[1.35] min-w-0">
+              {issue.message}
+              {issue.element && issue.element.trim() && (
+                <span className="font-mono text-text-quaternary font-normal ml-[6px] text-[10px]">
+                  {issue.element.length > 40 ? '…' + issue.element.slice(-40) : issue.element}
+                </span>
               )}
             </div>
             {issue.value && (
-              <div className="font-mono text-[13px] text-text-primary self-center shrink-0">
-                {issue.value}
-              </div>
+              <span className="font-mono text-[12px] text-grade-warn shrink-0">{issue.value}</span>
             )}
           </div>
         ))}
       </div>
-    </div>
+    </section>
   )
 }

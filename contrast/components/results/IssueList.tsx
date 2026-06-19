@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { AuditIssue } from "@/lib/types"
-import { IssueRow } from "@/components/ui/IssueRow"
 import { cn } from "@/lib/utils"
 
 interface IssueListProps {
@@ -10,30 +9,16 @@ interface IssueListProps {
 }
 
 type FilterType = "all" | "critical" | "warn" | "info"
+const PAGE_SIZE = 15
 
-const PAGE_SIZE = 10
-
-// How many page buttons to show before using ellipsis
-const MAX_VISIBLE_PAGES = 7
-
-/**
- * Builds a page number array with ellipsis markers.
- * e.g. [1, '...', 4, 5, 6, '...', 12]
- */
 function buildPageRange(current: number, total: number): (number | "…")[] {
-  if (total <= MAX_VISIBLE_PAGES) {
-    return Array.from({ length: total }, (_, i) => i + 1)
-  }
-
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
   const pages: (number | "…")[] = [1]
-
   const left = Math.max(2, current - 1)
   const right = Math.min(total - 1, current + 1)
-
   if (left > 2) pages.push("…")
   for (let p = left; p <= right; p++) pages.push(p)
   if (right < total - 1) pages.push("…")
-
   pages.push(total)
   return pages
 }
@@ -42,9 +27,7 @@ export function IssueList({ issues }: IssueListProps) {
   const [filter, setFilter] = useState<FilterType>("all")
   const [page, setPage] = useState(1)
 
-  useEffect(() => {
-    setPage(1)
-  }, [filter])
+  useEffect(() => { setPage(1) }, [filter])
 
   const counts = {
     all:      issues.length,
@@ -53,187 +36,178 @@ export function IssueList({ issues }: IssueListProps) {
     info:     issues.filter(i => i.severity === "info").length,
   }
 
-  const severityOrder = { critical: 0, warn: 1, info: 2 }
-
-  const filteredSorted = [...issues]
+  const filtered = [...issues]
     .filter(i => filter === "all" || i.severity === filter)
-    .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity])
+    .sort((a, b) => {
+      const order = { critical: 0, warn: 1, info: 2 }
+      return order[a.severity] - order[b.severity]
+    })
 
-  const totalPages = Math.ceil(filteredSorted.length / PAGE_SIZE)
-  const paginated  = filteredSorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const pageRange  = buildPageRange(page, totalPages)
-
   const rangeStart = (page - 1) * PAGE_SIZE + 1
-  const rangeEnd   = Math.min(page * PAGE_SIZE, filteredSorted.length)
+  const rangeEnd   = Math.min(page * PAGE_SIZE, filtered.length)
+
+  const severityBadgeStyle: Record<AuditIssue["severity"], string> = {
+    critical: "text-grade-critical border-grade-critical bg-[#FEF2F2]",
+    warn:     "text-grade-warn border-grade-warn bg-[#FFFBEB]",
+    info:     "text-text-quaternary border-border bg-bg-subtle",
+  }
+  const severityLabel: Record<AuditIssue["severity"], string> = {
+    critical: "Critical",
+    warn:     "Warn",
+    info:     "Info",
+  }
 
   return (
-    <div className="mb-[32px]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-[18px]">
-        <h2 className="text-[16px] font-semibold text-text-primary tracking-[-0.01em] m-0">
-          {issues.length} {issues.length === 1 ? "issue" : "issues"} found
-        </h2>
-        <span
-          className="text-[12px] font-mono text-text-tertiary bg-bg-subtle border border-border px-[10px] py-[3px] rounded-[20px]"
-          aria-label={`${issues.length} total issues`}
-        >
+    <section className="mb-[28px]">
+      {/* Section header */}
+      <div className="flex items-center justify-between mb-[10px]">
+        <span className="text-[9px] font-mono tracking-widest uppercase text-text-quaternary">
+          Issues
+        </span>
+        <span className="text-[10px] font-mono text-text-quaternary">
           {issues.length} total
         </span>
       </div>
 
       {/* Filter pills */}
       {issues.length > 0 && (
-        <div
-          className="flex gap-[6px] mb-[22px] flex-wrap"
-          role="group"
-          aria-label="Filter issues by severity"
-        >
-          <FilterPill active={filter === "all"}      onClick={() => setFilter("all")}      label={`All (${counts.all})`} />
-          <FilterPill active={filter === "critical"} onClick={() => setFilter("critical")} label={`Critical (${counts.critical})`} />
-          <FilterPill active={filter === "warn"}     onClick={() => setFilter("warn")}     label={`Warnings (${counts.warn})`} />
-          <FilterPill active={filter === "info"}     onClick={() => setFilter("info")}     label={`Info (${counts.info})`} />
+        <div className="flex gap-[4px] mb-[10px] flex-wrap" role="group" aria-label="Filter issues by severity">
+          {(["all", "critical", "warn", "info"] as FilterType[]).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              aria-pressed={filter === f}
+              className={cn(
+                "text-[10px] font-mono px-[8px] py-[3px] rounded-[4px] border cursor-pointer transition-all tracking-[0.02em]",
+                filter === f
+                  ? "bg-text-primary text-white border-text-primary"
+                  : "bg-white text-text-tertiary border-[#D8D5CE] hover:border-[#B8B5AE]"
+              )}
+            >
+              {f === "all" ? `All (${counts.all})` : f === "critical" ? `Critical (${counts.critical})` : f === "warn" ? `Warn (${counts.warn})` : `Info (${counts.info})`}
+            </button>
+          ))}
         </div>
       )}
 
-      {/* No results */}
-      {filteredSorted.length === 0 && (
-        <p className="text-[13px] text-text-secondary py-[8px]">
-          No issues match this filter.
-        </p>
+      {filtered.length === 0 && (
+        <p className="text-[12px] text-text-tertiary py-[6px]">No issues match this filter.</p>
       )}
 
-      {/* Issue groups */}
-      {filteredSorted.length > 0 && (
-        <div className="flex flex-col">
-          {(["critical", "warn", "info"] as const).map(sev => {
-            const sevIssues = paginated.filter(i => i.severity === sev)
-            if (sevIssues.length === 0) return null
+      {/* Issue table */}
+      {filtered.length > 0 && (
+        <div className="border border-border rounded-[5px] overflow-hidden">
+          {/* Column header */}
+          <div className="grid grid-cols-[80px_1fr_minmax(0,200px)_60px] bg-[#F8F7F4] border-b border-border px-[12px] py-[6px] gap-[12px]">
+            <div className="text-[9px] font-mono uppercase tracking-[0.06em] text-text-quaternary">Severity</div>
+            <div className="text-[9px] font-mono uppercase tracking-[0.06em] text-text-quaternary">Message</div>
+            <div className="text-[9px] font-mono uppercase tracking-[0.06em] text-text-quaternary hidden sm:block">Element</div>
+            <div className="text-[9px] font-mono uppercase tracking-[0.06em] text-text-quaternary text-right">Value</div>
+          </div>
 
-            // Total count for this severity in the full filtered set
-            const sevTotal = filteredSorted.filter(i => i.severity === sev).length
-
-            const groupStyles = {
-              critical: "bg-grade-critical/10 text-grade-critical",
-              warn:     "bg-grade-warn/10 text-grade-warn",
-              info:     "bg-bg-subtle text-text-tertiary",
-            }
-
-            const groupLabel = {
-              critical: "Critical",
-              warn:     "Warnings",
-              info:     "Info",
-            }
-
-            return (
-              <div key={sev} className="mb-[22px]" aria-labelledby={`ig-${sev}`}>
-                <div
-                  id={`ig-${sev}`}
-                  className={cn(
-                    "text-[10px] font-mono tracking-[0.08em] uppercase px-[10px] py-[5px] rounded-[4px] mb-[8px] inline-flex items-center gap-[6px]",
-                    groupStyles[sev]
-                  )}
-                >
-                  {groupLabel[sev]}
-                  <span className="opacity-65">· {sevTotal}</span>
+          {/* Rows */}
+          <div className="divide-y divide-border bg-white">
+            {paginated.map((issue, i) => (
+              <div
+                key={`${issue.severity}-${i}`}
+                className="grid grid-cols-[80px_1fr_minmax(0,200px)_60px] px-[12px] py-[9px] gap-[12px] items-center hover:bg-[#FAFAF8] transition-colors"
+                role="row"
+                aria-label={`${issue.severity}: ${issue.message}`}
+              >
+                {/* Severity badge */}
+                <div>
+                  <span className={cn(
+                    "text-[8px] font-mono tracking-[0.06em] uppercase px-[5px] py-[2px] rounded-[3px] border inline-block",
+                    severityBadgeStyle[issue.severity]
+                  )}>
+                    {severityLabel[issue.severity]}
+                  </span>
                 </div>
 
-                {sevIssues.map((issue, i) => (
-                  <IssueRow
-                    key={`${sev}-${i}`}
-                    severity={issue.severity}
-                    message={issue.message}
-                    element={issue.element}
-                    value={issue.value}
-                  />
-                ))}
+                {/* Message */}
+                <div className="text-[12px] text-text-primary leading-[1.35] min-w-0">
+                  {issue.message}
+                </div>
+
+                {/* Element selector */}
+                <div className="hidden sm:block min-w-0">
+                  {issue.element ? (
+                    <span
+                      className="font-mono text-[10px] text-text-tertiary block truncate"
+                      title={issue.element}
+                    >
+                      {issue.element.length > 40 ? '…' + issue.element.slice(-40) : issue.element}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-text-quaternary">—</span>
+                  )}
+                </div>
+
+                {/* Value */}
+                <div className="text-right">
+                  {issue.value ? (
+                    <span className={cn(
+                      "font-mono text-[11px]",
+                      issue.severity === "critical" ? "text-grade-critical" :
+                      issue.severity === "warn"     ? "text-grade-warn" :
+                      "text-text-tertiary"
+                    )}>
+                      {issue.value}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-text-quaternary">—</span>
+                  )}
+                </div>
               </div>
-            )
-          })}
+            ))}
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-[16px] mt-[4px] border-t border-border">
-              <span className="text-[12px] text-text-tertiary font-mono">
-                Showing {rangeStart}–{rangeEnd} of {filteredSorted.length}
+            <div className="flex items-center justify-between px-[12px] py-[8px] border-t border-border bg-[#F8F7F4]">
+              <span className="text-[10px] font-mono text-text-quaternary">
+                {rangeStart}–{rangeEnd} of {filtered.length}
               </span>
-
-              <div className="flex items-center gap-[6px]">
+              <div className="flex items-center gap-[4px]">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  aria-label="Previous page"
-                  className="text-[12px] font-sans px-[12px] py-[6px] rounded-[6px] border border-border bg-white text-text-secondary transition-colors hover:border-border-subtle hover:bg-bg-subtle disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="text-[10px] font-mono px-[8px] py-[3px] rounded-[4px] border border-[#D8D5CE] bg-white text-text-secondary hover:bg-[#F5F4F0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
-                  Back
+                  ←
                 </button>
-
-                <div className="flex gap-[3px]" role="navigation" aria-label="Pagination">
-                  {pageRange.map((p, i) =>
-                    p === "…" ? (
-                      <span
-                        key={`ellipsis-${i}`}
-                        className="w-[28px] h-[28px] flex items-center justify-center text-[12px] text-text-tertiary select-none"
-                        aria-hidden="true"
-                      >
-                        …
-                      </span>
-                    ) : (
-                      <button
-                        key={p}
-                        onClick={() => setPage(p)}
-                        aria-label={`Page ${p}`}
-                        aria-current={p === page ? "page" : undefined}
-                        className={cn(
-                          "w-[28px] h-[28px] flex items-center justify-center rounded-[6px] text-[12px] font-mono transition-colors",
-                          p === page
-                            ? "bg-text-primary text-white"
-                            : "text-text-secondary hover:bg-bg-subtle"
-                        )}
-                      >
-                        {p}
-                      </button>
-                    )
-                  )}
-                </div>
-
+                {pageRange.map((p, i) =>
+                  p === "…" ? (
+                    <span key={`e${i}`} className="text-[10px] text-text-quaternary px-[4px]">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      aria-current={p === page ? "page" : undefined}
+                      className={cn(
+                        "w-[24px] h-[24px] flex items-center justify-center rounded-[4px] text-[10px] font-mono transition-colors",
+                        p === page ? "bg-text-primary text-white" : "text-text-secondary hover:bg-[#F5F4F0]"
+                      )}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  aria-label="Next page"
-                  className="text-[12px] font-sans px-[12px] py-[6px] rounded-[6px] border border-border bg-white text-text-secondary transition-colors hover:border-border-subtle hover:bg-bg-subtle disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="text-[10px] font-mono px-[8px] py-[3px] rounded-[4px] border border-[#D8D5CE] bg-white text-text-secondary hover:bg-[#F5F4F0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
-                  Next
+                  →
                 </button>
               </div>
             </div>
           )}
         </div>
       )}
-    </div>
-  )
-}
-
-function FilterPill({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean
-  onClick: () => void
-  label: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        "text-[11px] font-mono px-[12px] py-[5px] rounded-[20px] border cursor-pointer transition-all tracking-[0.02em] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2",
-        active
-          ? "bg-text-primary text-white border-text-primary"
-          : "bg-white text-text-tertiary border-border hover:border-border-subtle hover:text-text-secondary"
-      )}
-    >
-      {label}
-    </button>
+    </section>
   )
 }

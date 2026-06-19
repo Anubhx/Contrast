@@ -16,12 +16,12 @@ interface ScoreHeaderProps {
 
 function getGradeInfo(score: number) {
   if (score >= 85) return { grade: 'Excellent', colorClass: 'text-grade-excellent' }
-  if (score >= 70) return { grade: 'Good', colorClass: 'text-grade-good' }
-  if (score >= 50) return { grade: 'Needs work', colorClass: 'text-grade-warn' }
+  if (score >= 70) return { grade: 'Good',      colorClass: 'text-grade-good'      }
+  if (score >= 50) return { grade: 'Needs work',colorClass: 'text-grade-warn'      }
   return { grade: 'Critical', colorClass: 'text-grade-critical' }
 }
 
-function getScoreColorClass(score: number) {
+function getBarColor(score: number) {
   if (score >= 85) return 'bg-grade-excellent'
   if (score >= 70) return 'bg-grade-good'
   if (score >= 50) return 'bg-grade-warn'
@@ -32,96 +32,107 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
   const dateObj = new Date(auditedAt)
   const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-  
   const { grade, colorClass } = getGradeInfo(score)
 
-  // Calculate widths for the segment bar based on relative scores
-  // (In the prototype, these sum to 90%, with gap handling the rest, but we'll use relative percentages)
-  const totalRaw = scores.contrast + scores.altText + scores.typography + scores.spacing;
-  const wC = `${Math.round((scores.contrast / totalRaw) * 100)}%`;
-  const wA = `${Math.round((scores.altText / totalRaw) * 100)}%`;
-  const wT = `${Math.round((scores.typography / totalRaw) * 100)}%`;
-  const wS = `${Math.round((scores.spacing / totalRaw) * 100)}%`;
-
-  const [copied, setCopied] = useState(false);
-
+  const [copied, setCopied] = useState(false)
   async function handleShare() {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    await navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
+  // Clean display URL
+  const displayUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+
   return (
-    <div className="px-[24px] pt-[28px] pb-[20px] border-b border-border bg-bg-subtle">
-      <div className="flex items-start justify-between mb-[20px]">
-        <div>
-          <h1 className="text-[17px] font-semibold text-text-primary tracking-[-0.02em] m-0">
-            {url}
+    <div className="px-[20px] pt-[20px] pb-[16px] border-b border-border">
+      {/* URL + action buttons */}
+      <div className="flex items-start justify-between gap-[8px] mb-[16px]">
+        <div className="min-w-0">
+          <h1
+            className="text-[13px] font-semibold text-text-primary tracking-[-0.01em] truncate m-0"
+            title={url}
+          >
+            {displayUrl}
           </h1>
-          <p className="text-[11px] font-mono text-text-secondary mt-[3px]">
+          <p className="text-[10px] font-mono text-text-quaternary mt-[2px]">
             {dateStr} · {timeStr}
           </p>
         </div>
-        <div className="flex gap-[8px] hide-on-print">
-          <button 
-            className="text-[12px] font-sans px-[14px] py-[6px] rounded-[8px] border border-border bg-white text-text-secondary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[5px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 w-[85px] justify-center"
+        <div className="flex gap-[6px] shrink-0 hide-on-print">
+          <button
             onClick={handleShare}
-            aria-label="Share audit result"
+            aria-label="Copy share link"
+            className="text-[11px] font-sans px-[10px] py-[4px] rounded-[5px] border border-[#D8D5CE] bg-white text-text-secondary cursor-pointer transition-colors hover:bg-[#F5F4F0] inline-flex items-center gap-[4px] min-w-[60px] justify-center"
           >
             {copied ? (
-              <span className="text-text-primary font-medium">Copied!</span>
+              <span className="text-grade-good font-medium">Copied!</span>
             ) : (
               <>
-                <svg viewBox="0 0 13 13" aria-hidden="true" className="w-[13px] h-[13px] stroke-current fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round">
-                  <circle cx="10" cy="2.5" r="1.5"/>
-                  <circle cx="2.5" cy="6.5" r="1.5"/>
-                  <circle cx="10" cy="10.5" r="1.5"/>
-                  <path d="M4 5.5l4.5-2.5M4 7.5l4.5 2.5"/>
+                <svg viewBox="0 0 12 12" className="w-[11px] h-[11px] stroke-current fill-none shrink-0" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="9.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="6" r="1.5"/><circle cx="9.5" cy="9.5" r="1.5"/>
+                  <path d="M4 5.5l4 -2.5M4 6.5l4 2.5"/>
                 </svg>
                 Share
               </>
             )}
           </button>
-          <a 
-            href={`${window.location.pathname}/report`}
+          <a
+            href={`${typeof window !== 'undefined' ? window.location.pathname : ''}/report`}
             target="_blank"
             rel="noreferrer"
-            className="text-[12px] font-sans px-[14px] py-[6px] rounded-[8px] border border-border bg-white text-text-secondary cursor-pointer transition-colors hover:border-border-subtle hover:bg-bg-subtle inline-flex items-center gap-[5px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 no-underline"
             aria-label="Open PDF report"
+            className="text-[11px] font-sans px-[10px] py-[4px] rounded-[5px] border border-[#D8D5CE] bg-white text-text-secondary cursor-pointer transition-colors hover:bg-[#F5F4F0] inline-flex items-center gap-[4px] no-underline"
           >
-            <svg viewBox="0 0 13 13" aria-hidden="true" className="w-[13px] h-[13px] stroke-current fill-none stroke-[1.5] stroke-linecap-round stroke-linejoin-round">
-              <path d="M6.5 2v6M4 6l2.5 2.5L9 6M2 10v.5a1 1 0 001 1h7a1 1 0 001-1V10"/>
+            <svg viewBox="0 0 12 12" className="w-[11px] h-[11px] stroke-current fill-none shrink-0" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 2v5M4 5.5L6 7.5 8 5.5M2 9.5v.5a.5.5 0 00.5.5h7a.5.5 0 00.5-.5V9.5"/>
             </svg>
             PDF
           </a>
         </div>
       </div>
-      
-      <div className="flex items-end gap-[12px] mb-[16px]">
-        <div className={`font-display text-[80px] leading-[0.9] tracking-[-0.02em] font-normal ${colorClass}`} aria-label={`Overall score: ${score} out of 100`}>
+
+      {/* Big score */}
+      <div className="flex items-end gap-[10px] mb-[14px]">
+        <div
+          className={`font-display text-[88px] leading-[0.88] tracking-[-0.03em] font-normal ${colorClass}`}
+          aria-label={`Overall score: ${score} out of 100`}
+        >
           {score}
         </div>
-        <div className="pb-[7px]">
-          <span className={`text-[12px] font-mono font-medium tracking-[0.08em] uppercase block mb-[4px] ${colorClass}`}>
+        <div className="pb-[8px]">
+          <span className={`text-[11px] font-mono font-medium tracking-[0.08em] uppercase block ${colorClass}`}>
             {grade}
           </span>
-          <span className="text-[12px] text-text-tertiary">Overall score</span>
+          <span className="text-[10px] text-text-quaternary">Overall score</span>
         </div>
       </div>
 
+      {/* Category score bars — proportional pixel widths */}
       <div aria-hidden="true">
-        <div className="flex h-[8px] rounded-[4px] overflow-hidden gap-[2px] mb-[6px]">
-          <div className={`h-full rounded-[2px] ${getScoreColorClass(scores.contrast)}`} style={{ width: wC }} title={`Contrast ${scores.contrast}`}></div>
-          <div className={`h-full rounded-[2px] ${getScoreColorClass(scores.altText)}`} style={{ width: wA }} title={`Alt text ${scores.altText}`}></div>
-          <div className={`h-full rounded-[2px] ${getScoreColorClass(scores.typography)}`} style={{ width: wT }} title={`Typography ${scores.typography}`}></div>
-          <div className={`h-full rounded-[2px] ${getScoreColorClass(scores.spacing)}`} style={{ width: wS }} title={`Spacing ${scores.spacing}`}></div>
-        </div>
-        <div className="flex gap-[2px]">
-          <span className="text-[9px] font-mono text-text-quaternary tracking-[0.04em] uppercase flex-1 text-center">Contrast</span>
-          <span className="text-[9px] font-mono text-text-quaternary tracking-[0.04em] uppercase flex-1 text-center">Alt text</span>
-          <span className="text-[9px] font-mono text-text-quaternary tracking-[0.04em] uppercase flex-1 text-center">Type</span>
-          <span className="text-[9px] font-mono text-text-quaternary tracking-[0.04em] uppercase flex-1 text-center">Space</span>
-        </div>
+        {[
+          { label: 'Contrast',   score: scores.contrast  },
+          { label: 'Alt text',   score: scores.altText   },
+          { label: 'Typography', score: scores.typography },
+          { label: 'Spacing',    score: scores.spacing   },
+        ].map(({ label, score: s }) => (
+          <div key={label} className="flex items-center gap-[8px] mb-[5px]">
+            <div className="text-[9px] font-mono text-text-quaternary w-[58px] shrink-0 uppercase tracking-[0.04em]">
+              {label}
+            </div>
+            <div className="flex-1 h-[4px] bg-bg-subtle rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${getBarColor(s)}`}
+                style={{ width: `${s}%` }}
+              />
+            </div>
+            <div className={`text-[10px] font-mono w-[24px] text-right ${
+              s >= 85 ? 'text-grade-excellent' : s >= 70 ? 'text-grade-good' : s >= 50 ? 'text-grade-warn' : 'text-grade-critical'
+            }`}>
+              {s}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

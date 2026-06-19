@@ -17,47 +17,47 @@ interface ResultsLayoutProps {
 
 export function ResultsLayout({ result }: ResultsLayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#F8F7F4]">
       <div className="hide-on-print">
         <Nav />
       </div>
 
-      <main className="grid grid-cols-[360px_1fr] min-h-[900px] w-[1440px] mx-auto mb-[96px] border border-border rounded-[16px] overflow-hidden shadow-[0_4px_20px_rgba(16,15,10,0.10),0_2px_6px_rgba(16,15,10,0.06)] bg-white hide-on-print">
-        {/* Left Sidebar (Score and Categories) */}
-        <aside className="border-r border-border flex flex-col" aria-label="Audit summary">
-          <ScoreHeader 
-            score={result.scores.overall} 
-            url={result.url} 
+      <main
+        className="grid grid-cols-[320px_1fr] w-full max-w-[1360px] mx-auto my-[32px] border border-border rounded-[8px] overflow-hidden shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)] bg-white hide-on-print"
+        style={{ minHeight: 'calc(100vh - 180px)' }}
+      >
+        {/* ── LEFT SIDEBAR ─────────────────────────────────────── */}
+        <aside className="border-r border-border flex flex-col bg-white" aria-label="Audit summary">
+          <ScoreHeader
+            score={result.scores.overall}
+            url={result.url}
             auditedAt={result.auditedAt}
             scores={result.scores}
           />
-          <CategoryGrid 
-            scores={result.scores} 
-            issues={result.issues} 
-          />
-          
-          {/* Summary Panel */}
-          <div className="p-[20px_24px] border-b border-border">
-            <div className="text-[10px] font-mono tracking-[0.08em] uppercase text-text-tertiary mb-[14px]">
-              Audit summary
+          <CategoryGrid scores={result.scores} issues={result.issues} />
+
+          {/* Audit summary metrics — 2-col data grid */}
+          <div className="px-[20px] pt-[18px] pb-[20px] border-t border-border">
+            <div className="text-[9px] font-mono tracking-widest uppercase text-text-quaternary mb-[12px]">
+              Audit Summary
             </div>
-            <SummaryRow label="Text pairs checked" value="342" />
-            <SummaryRow label="Colour pairs extracted" value="89" />
-            <SummaryRow label="Images found" value="51" />
-            <SummaryRow label="Images with alt text" value="20 / 51" />
-            <SummaryRow label="Font families" value="4" />
-            <SummaryRow label="Spacing values sampled" value="128" />
-            <SummaryRow label="WCAG level" value="AA 2.1" />
+            <div className="grid grid-cols-2 gap-x-[16px] gap-y-[14px]">
+              <MetricCell n="342" label="Text pairs" />
+              <MetricCell n="89"  label="Colour pairs" />
+              <MetricCell n="51"  label="Images" />
+              <MetricCell n="4"   label="Font families" />
+              <MetricCell n="128" label="Spacing samples" />
+              <MetricCell n="AA"  label="WCAG level" />
+            </div>
           </div>
         </aside>
 
-        {/* Right Main Content (Issues and Screenshot) */}
-        <div className="p-[36px_40px]">
+        {/* ── RIGHT MAIN CONTENT ───────────────────────────────── */}
+        <div className="p-[28px_36px] flex flex-col gap-0 overflow-auto">
           <TopFixes fixes={result.prioritizedFixes?.topFixes} estimatedImpact={result.estimatedImpact} />
           <DesignSmells smells={result.designSmells} />
           <QuickWins wins={result.prioritizedFixes?.quickWins} />
           <IssueList issues={result.issues} />
-          
           <ScreenshotViewer screenshotUrl={result.screenshotUrl} url={result.url} />
         </div>
       </main>
@@ -71,11 +71,11 @@ export function ResultsLayout({ result }: ResultsLayoutProps) {
   )
 }
 
-function SummaryRow({ label, value }: { label: string, value: string }) {
+function MetricCell({ n, label }: { n: string; label: string }) {
   return (
-    <div className="flex items-center justify-between py-[6px] border-b border-border last:border-b-0">
-      <span className="text-[12px] text-text-secondary">{label}</span>
-      <span className="text-[12px] font-mono font-medium text-text-primary">{value}</span>
+    <div>
+      <div className="font-mono text-[20px] font-semibold text-text-primary leading-none">{n}</div>
+      <div className="text-[10px] text-text-tertiary mt-[2px]">{label}</div>
     </div>
   )
 }
