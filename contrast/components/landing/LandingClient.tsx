@@ -6,7 +6,6 @@ import { Footer } from '@/components/layout/Footer';
 import { useAudit } from '@/hooks/useAudit';
 import { LoadingView } from '@/components/landing/LoadingView';
 import { HeroSection } from '@/components/landing/HeroSection';
-import { SocialProof } from '@/components/landing/SocialProof';
 import { BentoGrid } from '@/components/landing/BentoGrid';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { WcagAccordion } from '@/components/landing/WcagAccordion';
@@ -43,14 +42,14 @@ export default function LandingClient({ recentAuditsNode }: LandingClientProps) 
           error={error}
         />
         
-        <SocialProof />
         <BentoGrid />
-        <HowItWorks />
-        <WcagAccordion />
-        <LiveCounter />
         
         {/* recentAuditsNode renders the RecentAudits component passed from app/page.tsx */}
         {recentAuditsNode}
+        
+        <HowItWorks />
+        <WcagAccordion />
+        <LiveCounter />
         
         <CtaFooter 
           onAuditSubmit={triggerAudit} 

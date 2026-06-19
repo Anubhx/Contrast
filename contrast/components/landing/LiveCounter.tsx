@@ -83,10 +83,6 @@ export function LiveCounter() {
             </div>
           </div>
         </div>
-        
-        <div className="text-center text-[11px] font-mono text-[#666666] tracking-[0.04em]">
-          Updated in real time from Vercel KV
-        </div>
       </div>
     </section>
   );
