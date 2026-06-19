@@ -27,7 +27,7 @@ export function PdfReport({ result }: PdfReportProps) {
   const sortedIssues = [...result.issues].sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]).slice(0, 10) // Show top 10
 
   return (
-    <div className="hidden print-only bg-white max-w-[794px] mx-auto p-[64px_72px] border border-border rounded-[14px] shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)]">
+    <div className="hidden print:block bg-white max-w-[794px] mx-auto p-[64px_72px] border border-border rounded-[14px] shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)]">
       <div className="flex justify-between items-start pb-[24px] border-b-[1.5px] border-text-primary mb-[40px]">
         <div>
           <div className="font-display italic text-[20px] text-text-primary">Contrast</div>
