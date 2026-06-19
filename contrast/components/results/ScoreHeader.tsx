@@ -77,18 +77,16 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
               </>
             )}
           </button>
-          <a
-            href={`${typeof window !== 'undefined' ? window.location.pathname : ''}/report`}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Open PDF report"
-            className="text-[11px] font-sans px-[10px] py-[4px] rounded-[5px] border border-[#D8D5CE] bg-white text-text-secondary cursor-pointer transition-colors hover:bg-[#F5F4F0] inline-flex items-center gap-[4px] no-underline"
+          <button
+            onClick={() => window.print()}
+            aria-label="Print report"
+            className="text-[11px] font-sans px-[10px] py-[4px] rounded-[5px] border border-[#D8D5CE] bg-white text-text-secondary cursor-pointer transition-colors hover:bg-[#F5F4F0] inline-flex items-center gap-[4px]"
           >
             <svg viewBox="0 0 12 12" className="w-[11px] h-[11px] stroke-current fill-none shrink-0" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6 2v5M4 5.5L6 7.5 8 5.5M2 9.5v.5a.5.5 0 00.5.5h7a.5.5 0 00.5-.5V9.5"/>
             </svg>
             PDF
-          </a>
+          </button>
         </div>
       </div>
 
