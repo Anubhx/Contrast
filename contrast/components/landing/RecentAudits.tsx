@@ -4,18 +4,25 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { RecentAuditData } from '@/lib/types';
 
-function ExampleCard({ id, domain, score, issues, date, color }: RecentAuditData) {
+function ExampleCard({ id, domain, score, grade, issues, date, color }: RecentAuditData & { grade?: string }) {
   return (
-    <Link href={`/audit/${id}`} className="block bg-bg-base border border-border rounded-[10px] p-[20px] cursor-pointer transition-all hover:border-border-subtle hover:shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)] hover:-translate-y-[2px] focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 no-underline text-text-primary">
-      <div className="flex items-start justify-between mb-[14px]">
-        <span className="text-[13px] font-medium truncate pr-2">{domain}</span>
-        <span className="font-mono text-[22px] font-medium leading-none shrink-0" style={{ color }}>
-          {score}
-        </span>
+    <Link href={`/audit/${id}`} className="block bg-white border border-[#E8E5DE] rounded-[8px] p-[24px] cursor-pointer transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:border-[#D8D5CE] outline-none focus-visible:ring-2 focus-visible:ring-[#2D6A2D]/30 no-underline text-text-primary group">
+      <div className="flex items-start justify-between mb-[20px]">
+        <span className="text-[18px] font-semibold text-text-primary truncate pr-4">{domain}</span>
+        <div className="text-right shrink-0">
+          <div className="font-display italic text-[48px] font-normal leading-[0.85] tracking-[-0.03em]" style={{ color }}>
+            {score}
+          </div>
+          <div className="text-[10px] font-mono tracking-[0.08em] uppercase mt-[6px]" style={{ color }}>
+            {grade || 'Audited'}
+          </div>
+        </div>
       </div>
-      <div className="h-[3px] bg-bg-subtle rounded-[2px] overflow-hidden mb-[12px]">
-        <div className="h-full rounded-[2px]" style={{ width: `${score}%`, background: color }} />
+      
+      <div className="h-[2px] bg-bg-subtle rounded-full overflow-hidden mb-[16px]">
+        <div className="h-full transition-all duration-500 ease-out" style={{ width: `${score}%`, background: color }} />
       </div>
+      
       <div className="flex justify-between items-center text-[11px]">
         <span className="font-mono text-text-quaternary">{date}</span>
         <span className="text-text-tertiary">{issues} issues</span>
@@ -48,13 +55,13 @@ export function RecentAudits() {
   if (loading || audits.length === 0) return null;
 
   return (
-    <section className="px-[40px] pb-[72px] relative z-10" aria-labelledby="recent-hd">
-      <div className="flex items-center justify-between mb-[20px]">
-        <h2 id="recent-hd" className="text-[11px] font-mono tracking-[0.08em] uppercase text-text-tertiary m-0">
-          Recent audits
+    <section className="py-[120px] px-[20px] md:px-[40px] max-w-[1200px] mx-auto relative z-10" aria-labelledby="recent-hd">
+      <div className="flex items-center justify-between mb-[48px]">
+        <h2 id="recent-hd" className="text-[32px] font-semibold tracking-[-0.02em] text-text-primary m-0">
+          What people are auditing
         </h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-[12px]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
         {audits.map((audit) => (
           <ExampleCard key={audit.id} {...audit} />
         ))}

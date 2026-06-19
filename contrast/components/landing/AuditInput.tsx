@@ -29,8 +29,8 @@ export function AuditInput({ onSubmit, loading, error }: AuditInputProps) {
         <div
           className={cn(
             'flex items-center bg-white border border-[#D8D5CE] rounded-full shadow-[0_1px_3px_rgba(16,15,10,0.08)] overflow-hidden transition-all duration-150 h-[52px]',
-            'focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(45,106,45,0.12)]',
-            error && 'border-grade-critical focus-within:shadow-[0_0_0_3px_rgba(179,27,27,0.12)]'
+            'focus-within:border-accent focus-within:ring-2 focus-within:ring-[#2D6A2D]/30',
+            error && 'border-grade-critical focus-within:ring-2 focus-within:ring-[#B31B1B]/30'
           )}
         >
           <label htmlFor="url-input" className="sr-only">Website URL to audit</label>
