@@ -9,22 +9,30 @@ export interface ButtonStyle {
 
 export function detectButtonDrift(buttons: ButtonStyle[]): DetectorResult {
   if (buttons.length === 0) {
-    return { variants: 0, message: "0 Button Styles Found", severity: "low" };
+    return { variants: 0, message: "No buttons detected", severity: "low", samples: [] };
   }
-  
-  const uniqueStyles = new Set(buttons.map(b => 
-    `${b.borderRadius}|${b.padding}|${b.backgroundColor}|${b.borderStyle}`
-  ));
-  
+
+  const uniqueStyles = new Map<string, ButtonStyle>();
+  for (const b of buttons) {
+    const key = `${b.borderRadius}|${b.padding}|${b.backgroundColor}|${b.borderStyle}`;
+    if (!uniqueStyles.has(key)) uniqueStyles.set(key, b);
+  }
+
   const variants = uniqueStyles.size;
-  
+
   let severity: Severity = "low";
   if (variants > 2 && variants <= 4) severity = "medium";
   if (variants > 4) severity = "high";
-  
+
+  // Build readable summaries of each unique style
+  const samples = Array.from(uniqueStyles.values())
+    .slice(0, 6)
+    .map(b => `r:${b.borderRadius} p:${b.padding}`);
+
   return {
     variants,
-    message: `${variants} Button Style${variants === 1 ? '' : 's'} Found`,
-    severity
+    message: `${variants} distinct button style${variants === 1 ? "" : "s"} detected`,
+    severity,
+    samples,
   };
 }

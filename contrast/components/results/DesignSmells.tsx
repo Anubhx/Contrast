@@ -1,11 +1,18 @@
 import React from 'react'
 
+interface SmellData {
+  variants: number;
+  message: string;
+  severity: "low" | "medium" | "high";
+  samples?: string[];
+}
+
 interface DesignSmellsProps {
   smells?: {
-    buttonDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
-    typographyDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
-    colorDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
-    spacingDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
+    buttonDrift: SmellData;
+    typographyDrift: SmellData;
+    colorDrift: SmellData;
+    spacingDrift: SmellData;
   }
 }
 
@@ -17,6 +24,44 @@ function SmellBadge({ severity }: { severity: "low" | "medium" | "high" }) {
     return <span className="text-[9px] font-mono tracking-[0.08em] uppercase text-grade-warn px-[6px] py-[2px] bg-grade-warn/10 border border-grade-warn rounded-[4px]">Medium</span>
   }
   return <span className="text-[9px] font-mono tracking-[0.08em] uppercase text-text-tertiary px-[6px] py-[2px] bg-bg-subtle border border-border rounded-[4px]">Low</span>
+}
+
+/** Renders up to `max` chip items, then a "+N more" if truncated. */
+function SampleChips({ samples, max = 6 }: { samples?: string[]; max?: number }) {
+  if (!samples || samples.length === 0) return null;
+  const shown = samples.slice(0, max);
+  const overflow = samples.length - shown.length;
+  return (
+    <div className="flex flex-wrap gap-[4px] mt-[8px]">
+      {shown.map((s, i) => (
+        <span
+          key={i}
+          className="text-[10px] font-mono text-text-secondary bg-bg-subtle border border-border rounded-[4px] px-[6px] py-[2px] leading-none"
+          title={s}
+        >
+          {s.length > 22 ? s.slice(0, 22) + '…' : s}
+        </span>
+      ))}
+      {overflow > 0 && (
+        <span className="text-[10px] font-mono text-text-quaternary px-[4px] py-[2px] leading-none">
+          +{overflow} more
+        </span>
+      )}
+    </div>
+  );
+}
+
+function SmellCard({ title, data }: { title: string; data: SmellData }) {
+  return (
+    <div className="bg-white border border-border rounded-[12px] p-[18px_22px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] flex flex-col gap-[6px]">
+      <div className="flex justify-between items-start">
+        <div className="text-[14px] font-medium text-text-primary">{title}</div>
+        <SmellBadge severity={data.severity} />
+      </div>
+      <p className="text-[12px] text-text-secondary leading-relaxed m-0">{data.message}</p>
+      <SampleChips samples={data.samples} />
+    </div>
+  );
 }
 
 export function DesignSmells({ smells }: DesignSmellsProps) {
@@ -31,37 +76,10 @@ export function DesignSmells({ smells }: DesignSmellsProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-[16px]">
-        <div className="bg-white border border-border rounded-[12px] p-[18px_22px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] flex flex-col gap-[8px]">
-          <div className="flex justify-between items-start">
-            <div className="text-[14px] font-medium text-text-primary">{smells.buttonDrift.variants} Primary Button Styles Found</div>
-            <SmellBadge severity={smells.buttonDrift.severity} />
-          </div>
-          <p className="text-[12px] text-text-secondary leading-relaxed">{smells.buttonDrift.message}</p>
-        </div>
-
-        <div className="bg-white border border-border rounded-[12px] p-[18px_22px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] flex flex-col gap-[8px]">
-          <div className="flex justify-between items-start">
-            <div className="text-[14px] font-medium text-text-primary">{smells.colorDrift.variants} Colors Outside Tokens</div>
-            <SmellBadge severity={smells.colorDrift.severity} />
-          </div>
-          <p className="text-[12px] text-text-secondary leading-relaxed">{smells.colorDrift.message}</p>
-        </div>
-
-        <div className="bg-white border border-border rounded-[12px] p-[18px_22px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] flex flex-col gap-[8px]">
-          <div className="flex justify-between items-start">
-            <div className="text-[14px] font-medium text-text-primary">{smells.typographyDrift.variants} Typography Systems Detected</div>
-            <SmellBadge severity={smells.typographyDrift.severity} />
-          </div>
-          <p className="text-[12px] text-text-secondary leading-relaxed">{smells.typographyDrift.message}</p>
-        </div>
-
-        <div className="bg-white border border-border rounded-[12px] p-[18px_22px] shadow-[0_1px_2px_rgba(16,15,10,0.06)] flex flex-col gap-[8px]">
-          <div className="flex justify-between items-start">
-            <div className="text-[14px] font-medium text-text-primary">{smells.spacingDrift.variants} Ad-hoc Spacing Values</div>
-            <SmellBadge severity={smells.spacingDrift.severity} />
-          </div>
-          <p className="text-[12px] text-text-secondary leading-relaxed">{smells.spacingDrift.message}</p>
-        </div>
+        <SmellCard title="Button Styles" data={smells.buttonDrift} />
+        <SmellCard title="Color Palette" data={smells.colorDrift} />
+        <SmellCard title="Typography" data={smells.typographyDrift} />
+        <SmellCard title="Spacing Values" data={smells.spacingDrift} />
       </div>
     </div>
   )

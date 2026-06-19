@@ -17,7 +17,18 @@ import { explainFindings } from '@/lib/gemini';
 export async function POST(req: Request) {
   try {
     const { url } = await req.json();
-    if (!url || !url.startsWith('http')) {
+    // Normalise — add https:// only when missing, never double-prefix
+    const rawUrl = typeof url === 'string' ? url.trim() : '';
+    if (!rawUrl) return NextResponse.json({ error: 'URL is required.' }, { status: 400 });
+    const normalizedInput = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(normalizedInput);
+    } catch {
+      return NextResponse.json({ error: 'Invalid URL.' }, { status: 400 });
+    }
+    const url_ = parsedUrl.toString();
+    if (!url_) {
       return NextResponse.json({ error: 'Invalid URL. Must start with http or https.' }, { status: 400 });
     }
 
@@ -56,7 +67,6 @@ export async function POST(req: Request) {
     }
 
     // Normalize URL for caching
-    const parsedUrl = new URL(url);
     const normalizedUrl = `${parsedUrl.origin}${parsedUrl.pathname}`.replace(/\/$/, '').toLowerCase();
     const urlHash = crypto.createHash('sha256').update(normalizedUrl).digest('hex');
 
@@ -78,8 +88,13 @@ export async function POST(req: Request) {
     }
 
     let browser;
-    let extractedData;
-    let accessibilityScanResults;
+    let extractedData: {
+      buttons: { borderRadius: string; padding: string; backgroundColor: string; borderStyle: string }[];
+      spacing: number[];
+      typography: { fontFamily: string; fontSize: string; fontWeight: string }[];
+      colors: string[];
+    } = { buttons: [], spacing: [], typography: [], colors: [] };
+    let accessibilityScanResults: Awaited<ReturnType<AxeBuilder['analyze']>> | null = null;
 
     try {
       browser = await connectToBrowserless();
@@ -87,7 +102,7 @@ export async function POST(req: Request) {
       const page = await context.newPage();
       
       // 15 second timeout as required
-      await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
+      await page.goto(url_, { waitUntil: 'networkidle', timeout: 15000 });
 
       // Extract DOM data
       extractedData = await page.evaluate(() => {
@@ -150,7 +165,7 @@ export async function POST(req: Request) {
     }
 
     // Map axe violations to AuditIssue
-    const issues = cleanAxeViolations(accessibilityScanResults.violations);
+    const issues = cleanAxeViolations(accessibilityScanResults?.violations ?? []);
 
     // Run detectors
     const buttonDrift = detectButtonDrift(extractedData.buttons);
@@ -161,20 +176,25 @@ export async function POST(req: Request) {
     // Run Scoring
     const scores = calculateScores(issues);
 
-    // Explain with Gemini
-    const explanation = await explainFindings({
-      buttonDrift,
-      spacingDrift,
-      typographyDrift,
-      colorDrift,
-      issuesCount: issues.length
-    });
+    // Explain with Gemini — pass raw violations so it can reference real selectors
+    const rawViolations = (accessibilityScanResults?.violations ?? []).map(v => ({
+      id: v.id,
+      impact: v.impact,
+      help: v.help,
+      nodes: v.nodes.map(n => ({
+        // axe target is UnlabelledFrameSelector — coerce to string[]
+        target: (n.target as unknown as string[]) ?? [],
+        failureSummary: n.failureSummary,
+        html: n.html,
+      })),
+    }));
+    const explanation = await explainFindings(rawViolations);
 
     const id = crypto.randomUUID();
 
     const auditResponse = {
       id,
-      url,
+      url: url_,
       auditedAt: new Date().toISOString(),
       score: scores.overall,
       scores: {
@@ -185,14 +205,23 @@ export async function POST(req: Request) {
         overall: scores.overall
       },
       prioritizedFixes: {
-        topFixes: explanation.recommendations.map(r => ({ category: 'typography', severity: 'critical', message: r })),
-        quickWins: [
-          { category: 'spacing', severity: 'warn', message: 'Standardize button padding across components' },
-          { category: 'altText', severity: 'info', message: 'Fix missing alt tags to immediately bump accessibility score' }
-        ]
+        topFixes: explanation.topFixes.map(f => ({
+          category: 'contrast' as const,
+          severity: f.severity as 'critical' | 'warn',
+          message: f.message,
+          element: f.element,
+          value: f.value,
+        })),
+        quickWins: explanation.quickWins.map(f => ({
+          category: 'spacing' as const,
+          severity: f.severity as 'critical' | 'warn',
+          message: f.message,
+          element: f.element,
+          value: f.value,
+        })),
       },
       estimatedImpact: {
-        scoreIncrease: 15
+        scoreIncrease: explanation.estimatedScoreGain,
       },
       issues,
       designSmells: {

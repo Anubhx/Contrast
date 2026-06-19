@@ -24,12 +24,11 @@ export interface AuditResult {
   issues: AuditIssue[];
   screenshotUrl?: string | null;
   
-  // New Value Layer
   designSmells?: {
-    buttonDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
-    typographyDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
-    colorDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
-    spacingDrift: { variants: number; message: string; severity: "low" | "medium" | "high" };
+    buttonDrift:    { variants: number; message: string; severity: "low" | "medium" | "high"; samples?: string[] };
+    typographyDrift: { variants: number; message: string; severity: "low" | "medium" | "high"; samples?: string[] };
+    colorDrift:     { variants: number; message: string; severity: "low" | "medium" | "high"; samples?: string[] };
+    spacingDrift:   { variants: number; message: string; severity: "low" | "medium" | "high"; samples?: string[] };
   };
   prioritizedFixes?: {
     topFixes: AuditIssue[];
