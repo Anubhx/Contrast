@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="DOCS/Hero%20Image.png" alt="Contrast Hero Image" width="100%" />
+  <img src="contrast/public/Hero%20Image.png" alt="Contrast Hero Image" width="100%" />
   
   <br />
   <br />
@@ -33,7 +33,7 @@ Whether you are a designer, a founder, or a curious creator, Contrast gives you 
 <br />
 
 <div align="center">
-  <img src="DOCS/Audit.png" alt="Contrast Audit Report" width="100%" />
+  <img src="contrast/public/Audit.png" alt="Contrast Audit Report" width="100%" />
 </div>
 
 <br />
