@@ -35,7 +35,7 @@ export function AuditInput({ onSubmit, loading, error }: AuditInputProps) {
         >
           <label htmlFor="url-input" className="sr-only">Website URL to audit</label>
           {/* Globe icon */}
-          <svg className="ml-4 mr-1 w-[15px] h-[15px] text-text-quaternary shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg className="ml-4 mr-1 w-[15px] h-[15px] text-text-quaternary shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" role="img" aria-label="Website URL icon">
             <circle cx="8" cy="8" r="6.5"/>
             <path d="M8 1.5C8 1.5 5.5 4.5 5.5 8S8 14.5 8 14.5M8 1.5C8 1.5 10.5 4.5 10.5 8S8 14.5 8 14.5M1.5 8h13"/>
           </svg>
@@ -47,7 +47,7 @@ export function AuditInput({ onSubmit, loading, error }: AuditInputProps) {
             placeholder="yourproduct.com"
             autoComplete="url"
             spellCheck="false"
-            className="flex-1 border-none outline-none font-sans text-[14px] text-text-primary bg-transparent px-3 min-w-0 placeholder:text-text-quaternary"
+            className="flex-1 border-none outline-none font-sans text-[14px] text-text-primary bg-transparent px-3 min-w-0 placeholder:text-text-secondary"
             disabled={loading}
           />
           <button

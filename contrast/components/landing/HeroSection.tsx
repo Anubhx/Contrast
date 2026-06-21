@@ -45,7 +45,7 @@ export function HeroSection({ onAuditSubmit, loading, error }: HeroSectionProps)
             ].map(({ n, label }) => (
               <div key={label} className="flex items-baseline gap-[5px]">
                 <span className="text-[15px] font-semibold font-mono text-text-primary">{n}</span>
-                <span className="text-[11px] text-text-tertiary">{label}</span>
+                <span className="text-[11px] text-text-secondary">{label}</span>
               </div>
             ))}
           </div>

@@ -52,7 +52,7 @@ export function IssueList({ issues }: IssueListProps) {
   const severityBadgeStyle: Record<AuditIssue["severity"], string> = {
     critical: "text-grade-critical border-grade-critical bg-[#FEF2F2]",
     warn:     "text-grade-warn border-grade-warn bg-[#FFFBEB]",
-    info:     "text-text-quaternary border-border bg-bg-subtle",
+    info:     "text-text-secondary border-border bg-bg-subtle",
   }
   const severityLabel: Record<AuditIssue["severity"], string> = {
     critical: "Critical",
@@ -113,7 +113,7 @@ export function IssueList({ issues }: IssueListProps) {
             {paginated.map((issue, i) => (
               <div
                 key={`${issue.severity}-${i}`}
-                className="grid grid-cols-[80px_1fr_minmax(0,200px)_60px] px-[12px] py-[9px] gap-[12px] items-center hover:bg-[#FAFAF8] transition-colors"
+                className="grid grid-cols-[80px_1fr_minmax(0,200px)_60px] px-[12px] py-[12px] min-h-[44px] gap-[12px] items-center hover:bg-[#FAFAF8] transition-colors"
                 role="row"
                 aria-label={`${issue.severity}: ${issue.message}`}
               >

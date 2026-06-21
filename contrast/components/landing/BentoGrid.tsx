@@ -39,7 +39,7 @@ export function BentoGrid() {
         {/* Card 1: Color Contrast (2 cols, 1 row) */}
         <div className="md:col-span-2 border border-border rounded-[12px] bg-white p-[32px] flex flex-col md:flex-row gap-[32px] transition-colors duration-200 hover:border-[#2D6A2D]">
           <div className="flex-1">
-            <div className="text-[10px] font-mono tracking-widest uppercase text-text-quaternary mb-[16px]">Weight: 40%</div>
+            <div className="text-[10px] font-mono tracking-widest uppercase text-text-secondary mb-[16px]">Weight: 40%</div>
             <h3 className="text-[20px] font-semibold text-text-primary mb-[12px]">Colour Contrast</h3>
             <p className="text-[14px] text-text-secondary leading-[1.6]">
               WCAG 2.1 AA requires 4.5:1 for normal text, 3:1 for large. We check every text-background pair on the page.
@@ -69,7 +69,7 @@ export function BentoGrid() {
 
         {/* Card 2: Alt Text (1 col, 1 row) */}
         <div className="md:col-span-1 border border-border rounded-[12px] bg-white p-[32px] group flex flex-col">
-          <div className="text-[10px] font-mono tracking-widest uppercase text-text-quaternary mb-[16px]">Weight: 30%</div>
+          <div className="text-[10px] font-mono tracking-widest uppercase text-text-secondary mb-[16px]">Weight: 30%</div>
           <h3 className="text-[20px] font-semibold text-text-primary mb-[24px]">Alt Text</h3>
           
           <div className="relative w-full aspect-[4/3] bg-[#F0EFEB] rounded-[4px] flex items-center justify-center mb-[20px] overflow-hidden">
@@ -92,7 +92,7 @@ export function BentoGrid() {
 
         {/* Card 3: Typography drift (1 col, 2 rows) */}
         <div className="md:col-span-1 md:row-span-2 border border-border rounded-[12px] bg-white p-[32px] flex flex-col">
-          <div className="text-[10px] font-mono tracking-widest uppercase text-text-quaternary mb-[16px]">Weight: 15%</div>
+          <div className="text-[10px] font-mono tracking-widest uppercase text-text-secondary mb-[16px]">Weight: 15%</div>
           <h3 className="text-[20px] font-semibold text-text-primary mb-[24px]">Typography drift</h3>
           
           <div className="flex flex-col gap-[16px] mb-[32px] flex-1">
@@ -146,7 +146,7 @@ export function BentoGrid() {
           <div className="shimmer-bg" />
           
           <div className="relative z-10">
-            <div className="text-[10px] font-mono tracking-widest uppercase text-text-quaternary mb-[16px]">Weight: 15%</div>
+            <div className="text-[10px] font-mono tracking-widest uppercase text-text-secondary mb-[16px]">Weight: 15%</div>
             <h3 className="text-[20px] font-semibold text-text-primary mb-[24px]">Spacing / 8px grid</h3>
             
             <div className="flex items-end gap-[4px] mb-[24px] h-[60px] border-b border-[#E8E5DE] pb-[8px]">

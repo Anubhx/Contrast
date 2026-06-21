@@ -29,7 +29,7 @@ export function TopFixes({ fixes, estimatedImpact }: TopFixesProps) {
           const isCritical = issue.severity === 'critical';
           const dot = isCritical ? 'bg-grade-critical' : 'bg-grade-warn';
           return (
-            <div key={idx} className="flex items-center gap-[10px] px-[14px] py-[10px] bg-white hover:bg-[#FAFAF8] transition-colors">
+            <div key={idx} className="flex items-center gap-[10px] px-[16px] py-[14px] min-h-[44px] bg-white hover:bg-[#FAFAF8] transition-colors">
               {/* Severity dot */}
               <div className={`w-[6px] h-[6px] rounded-full shrink-0 ${dot}`} aria-label={issue.severity} />
               {/* Message */}

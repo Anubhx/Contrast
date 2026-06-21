@@ -53,13 +53,13 @@ export function IssueRow({ severity, message, element, value }: IssueRowProps) {
   const severityStyles: Record<AuditIssue["severity"], string> = {
     critical: "text-grade-critical border-grade-critical bg-grade-critical/8",
     warn:     "text-grade-warn     border-grade-warn     bg-grade-warn/8",
-    info:     "text-text-tertiary  border-border          bg-bg-subtle",
+    info:     "text-text-secondary  border-border          bg-bg-subtle",
   }
 
   const valueStyles: Record<AuditIssue["severity"], string> = {
     critical: "text-grade-critical",
     warn:     "text-grade-warn",
-    info:     "text-text-tertiary",
+    info:     "text-text-secondary",
   }
 
   const severityLabel: Record<AuditIssue["severity"], string> = {
@@ -70,7 +70,7 @@ export function IssueRow({ severity, message, element, value }: IssueRowProps) {
 
   return (
     <article
-      className="bg-white border border-border rounded-[10px] px-[16px] py-[13px] mb-[6px] flex items-start gap-[14px] transition-colors hover:border-border-subtle hover:shadow-xs"
+      className="bg-white border border-border rounded-[10px] px-[16px] py-[16px] min-h-[44px] mb-[6px] flex items-start gap-[14px] transition-colors hover:border-border-subtle hover:shadow-xs"
       aria-label={`${severityLabel[severity]}: ${displayMessage}`}
     >
       {/* Left: category chip + message + selector */}
@@ -81,7 +81,6 @@ export function IssueRow({ severity, message, element, value }: IssueRowProps) {
             "inline-flex items-center text-[9px] font-mono tracking-[0.06em] uppercase px-[6px] py-[2px] rounded-[4px] border mb-[6px]",
             severityStyles[severity]
           )}
-          aria-hidden="true"
         >
           {severityLabel[severity]}
         </span>

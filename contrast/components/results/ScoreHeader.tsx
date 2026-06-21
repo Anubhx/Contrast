@@ -55,7 +55,7 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
           >
             {displayUrl}
           </h1>
-          <p className="text-[10px] font-mono text-text-quaternary mt-[2px]">
+          <p className="text-[10px] font-mono text-text-secondary mt-[2px]">
             {dateStr} · {timeStr}
           </p>
         </div>
@@ -102,20 +102,20 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
           <span className={`text-[11px] font-mono font-medium tracking-[0.08em] uppercase block ${colorClass}`}>
             {grade}
           </span>
-          <span className="text-[10px] text-text-quaternary">Overall score</span>
+          <span className="text-[10px] text-text-secondary">Overall score</span>
         </div>
       </div>
 
       {/* Category score bars — proportional pixel widths */}
-      <div aria-hidden="true">
+      <div>
         {[
           { label: 'Contrast',   score: scores.contrast  },
           { label: 'Alt text',   score: scores.altText   },
           { label: 'Typography', score: scores.typography },
           { label: 'Spacing',    score: scores.spacing   },
         ].map(({ label, score: s }) => (
-          <div key={label} className="flex items-center gap-[8px] mb-[5px]">
-            <div className="text-[9px] font-mono text-text-quaternary w-[58px] shrink-0 uppercase tracking-[0.04em]">
+          <div key={label} className="flex items-center gap-[8px] mb-[5px]" role="progressbar" aria-valuenow={s} aria-valuemin={0} aria-valuemax={100} aria-label={`${label} score`}>
+            <div className="text-[9px] font-mono text-text-secondary w-[58px] shrink-0 uppercase tracking-[0.04em]">
               {label}
             </div>
             <div className="flex-1 h-[4px] bg-bg-subtle rounded-full overflow-hidden">
