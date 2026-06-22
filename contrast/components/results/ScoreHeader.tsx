@@ -45,7 +45,7 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
   const displayUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '')
 
   return (
-    <div className="px-[20px] pt-[20px] pb-[16px] border-b border-border">
+    <div className="px-[16px] md:px-[20px] pt-[16px] md:pt-[20px] pb-[16px] border-b border-border">
       {/* URL + action buttons */}
       <div className="flex items-start justify-between gap-[8px] mb-[16px]">
         <div className="min-w-0">
@@ -93,7 +93,7 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
       {/* Big score */}
       <div className="flex items-end gap-[10px] mb-[14px]">
         <div
-          className={`font-display text-[88px] leading-[0.88] tracking-[-0.03em] font-normal ${colorClass}`}
+          className={`font-display text-[56px] md:text-[88px] leading-[0.88] tracking-[-0.03em] font-normal ${colorClass}`}
           aria-label={`Overall score: ${score} out of 100`}
         >
           {score}

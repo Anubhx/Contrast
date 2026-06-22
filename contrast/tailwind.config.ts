@@ -12,7 +12,7 @@ const config: Config = {
       fontFamily: {
         display: ['"Instrument Serif"', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'Fira Code', 'monospace'],
+        mono: ['Inter', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
         accent: 'var(--color-accent)',
@@ -30,6 +30,7 @@ const config: Config = {
         'text-secondary': 'var(--color-text-secondary)',
         'text-tertiary': 'var(--color-text-tertiary)',
         'text-quaternary': 'var(--ink4)',
+        'text-placeholder': 'var(--color-text-placeholder)',
         border: 'var(--color-border)',
         'border-subtle': 'var(--color-border-subtle)',
         'ring-track': 'var(--color-ring-track)',

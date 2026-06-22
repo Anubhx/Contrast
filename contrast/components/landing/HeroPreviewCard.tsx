@@ -49,7 +49,7 @@ export function HeroPreviewCard() {
         </div>
 
         {/* Category scores */}
-        <div className="grid grid-cols-4 gap-[1px] bg-border border-y border-border">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-border border-y border-border">
           {[
             { label: 'Contrast',   score: 91, colorClass: 'text-grade-excellent', bgClass: 'bg-grade-excellent', delay: 0 },
             { label: 'Alt text',   score: 100, colorClass: 'text-grade-excellent', bgClass: 'bg-grade-excellent', delay: 300 },

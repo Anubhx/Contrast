@@ -19,8 +19,8 @@ export function HeroSection({ onAuditSubmit, loading, error }: HeroSectionProps)
         {/* LEFT — headline + input */}
         <div className="flex-1 w-full min-w-0 max-w-[520px]">
           {/* eyebrow */}
-          <div className="inline-flex items-center gap-[6px] text-[11px] font-mono text-text-tertiary tracking-[0.06em] uppercase mb-[24px]">
-            <span className="w-[5px] h-[5px] rounded-full bg-grade-excellent shrink-0" />
+          <div className="inline-flex items-center gap-[6px] text-[11px] font-mono text-text-secondary tracking-[0.06em] uppercase mb-[24px]">
+            <span className="w-[5px] h-[5px] rounded-full bg-accent shrink-0" />
             WCAG 2.1 AA · Free · No login
           </div>
 

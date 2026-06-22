@@ -13,8 +13,9 @@
   
   --ink: #16150F;
   --ink2: #4A4840;
-  --ink3: #8A8880;
+  --ink3: #706E68;
   --ink4: #B8B6AE;
+  --ink-placeholder: #767470;
   
   --acc: #2D6A2D;
   --acc-l: #F0F7F0;
@@ -41,6 +42,7 @@
   --color-text-primary: var(--ink);
   --color-text-secondary: var(--ink2);
   --color-text-tertiary: var(--ink3);
+  --color-text-placeholder: var(--ink-placeholder);
 
   --color-accent: var(--acc);
   --color-accent-dim: var(--acc-l);
