@@ -35,28 +35,32 @@ export function CategoryGrid({ scores, issues }: CategoryGridProps) {
 
   return (
     <div
-      className="grid grid-cols-2 gap-[1px] bg-border border-b border-border"
+      className="grid grid-cols-2 gap-[1px] bg-[#2A2926] border-b border-border"
       role="list"
       aria-label="Category scores"
     >
       {cats.map(({ key, label, score, issueCount }) => (
         <div
           key={key}
-          className="bg-white px-[14px] py-[12px]"
+          className="bg-[#1C1B19] px-[16px] py-[16px] flex flex-col justify-between"
           role="listitem"
           aria-label={`${label}: ${score}, ${issueCount} issues`}
         >
-          <div className="text-[9px] font-mono tracking-[0.06em] uppercase text-text-quaternary mb-[6px]">
-            {label}
+          <div>
+            <div className="text-[10px] font-mono tracking-[0.06em] uppercase text-[#888888] mb-[8px]">
+              {label}
+            </div>
+            <div className={`font-mono text-[28px] font-semibold leading-none mb-[8px] ${getTextColor(score)}`}>
+              {score}
+            </div>
           </div>
-          <div className={`font-mono text-[22px] font-semibold leading-none mb-[5px] ${getTextColor(score)}`}>
-            {score}
-          </div>
-          <div className="h-[3px] bg-bg-subtle rounded-full overflow-hidden mb-[4px]" aria-hidden="true">
-            <div className={`h-full rounded-full ${getBgColor(score)}`} style={{ width: `${score}%` }} />
-          </div>
-          <div className="text-[10px] text-text-quaternary">
-            {issueCount} {issueCount === 1 ? 'issue' : 'issues'}
+          <div>
+            <div className="h-[3px] bg-[#333] rounded-full overflow-hidden mb-[6px]" aria-hidden="true">
+              <div className={`h-full rounded-full ${getBgColor(score)}`} style={{ width: `${score}%` }} />
+            </div>
+            <div className="text-[11px] text-white">
+              {issueCount} {issueCount === 1 ? 'issue' : 'issues'}
+            </div>
           </div>
         </div>
       ))}

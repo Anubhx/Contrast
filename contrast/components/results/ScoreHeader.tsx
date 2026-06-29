@@ -90,8 +90,39 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
         </div>
       </div>
 
-      {/* Big score */}
-      <div className="flex items-end gap-[10px] mb-[14px]">
+      {/* Mobile Big Score (Circular) */}
+      <div className="flex md:hidden justify-center py-[32px]">
+        <div className="relative flex flex-col items-center justify-center w-[160px] h-[160px]">
+          <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <circle
+              cx="50" cy="50" r="45"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+              className="text-bg-subtle"
+            />
+            <circle
+              cx="50" cy="50" r="45"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+              strokeDasharray="282.7"
+              strokeDashoffset={282.7 - (282.7 * score) / 100}
+              className={colorClass}
+              strokeLinecap="round"
+            />
+          </svg>
+          <div className={`text-[56px] font-display leading-none tracking-[-0.03em] ${colorClass}`}>
+            {score}
+          </div>
+          <div className={`text-[11px] font-mono font-medium tracking-[0.08em] uppercase mt-[4px] ${colorClass}`}>
+            {grade}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Big score */}
+      <div className="hidden md:flex items-end gap-[10px] mb-[14px]">
         <div
           className={`font-display text-[56px] md:text-[88px] leading-[0.88] tracking-[-0.03em] font-normal ${colorClass}`}
           aria-label={`Overall score: ${score} out of 100`}
@@ -106,8 +137,8 @@ export function ScoreHeader({ score, url, auditedAt, scores }: ScoreHeaderProps)
         </div>
       </div>
 
-      {/* Category score bars — proportional pixel widths */}
-      <div>
+      {/* Category score bars — proportional pixel widths - Hidden on mobile */}
+      <div className="hidden md:block">
         {[
           { label: 'Contrast',   score: scores.contrast  },
           { label: 'Alt text',   score: scores.altText   },

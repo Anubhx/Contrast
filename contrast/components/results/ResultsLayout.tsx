@@ -23,11 +23,11 @@ export function ResultsLayout({ result }: ResultsLayoutProps) {
       </div>
 
       <main
-        className="grid grid-cols-[320px_1fr] w-full max-w-[1360px] mx-auto my-[32px] border border-border rounded-[8px] overflow-hidden shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)] bg-white hide-on-print"
+        className="grid grid-cols-1 md:grid-cols-[320px_1fr] w-full max-w-[1360px] mx-auto md:my-[32px] md:border md:border-border md:rounded-[8px] overflow-hidden shadow-[0_2px_8px_rgba(16,15,10,0.08),0_1px_2px_rgba(16,15,10,0.04)] bg-white hide-on-print"
         style={{ minHeight: 'calc(100vh - 180px)' }}
       >
         {/* ── LEFT SIDEBAR ─────────────────────────────────────── */}
-        <aside className="border-r border-border flex flex-col bg-white" aria-label="Audit summary">
+        <aside className="border-b md:border-b-0 md:border-r border-border flex flex-col bg-white" aria-label="Audit summary">
           <ScoreHeader
             score={result.scores.overall}
             url={result.url}
@@ -53,7 +53,7 @@ export function ResultsLayout({ result }: ResultsLayoutProps) {
         </aside>
 
         {/* ── RIGHT MAIN CONTENT ───────────────────────────────── */}
-        <div className="p-[28px_36px] flex flex-col gap-0 overflow-auto">
+        <div className="p-[16px] md:p-[28px_36px] flex flex-col gap-0 overflow-auto">
           <TopFixes fixes={result.prioritizedFixes?.topFixes} estimatedImpact={result.estimatedImpact} />
           <DesignSmells smells={result.designSmells} />
           <QuickWins wins={result.prioritizedFixes?.quickWins} />
