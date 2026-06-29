@@ -49,29 +49,28 @@ export async function explainFindings(
 
   const prompt = `You are a senior accessibility engineer writing an audit summary.
 You have real axe-core violations below. Write at most 3 top fixes and at most 2 quick wins.
+
 Rules:
-- Every fix MUST reference the EXACT selector from the violation nodes.
-- Be terse. No motivational language. No "to improve X for Y users."
-- Format: what is broken, where it is (the selector), the measured value if present.
-- Example good message: "contrast ratio 2.1:1 on .navbar-text — needs 4.5:1 minimum"
-- Example bad message: "Address contrast violations to improve legibility"
-- topFixes: critical/serious violations only.
-- quickWins: moderate/minor violations that are easy to fix.
-- If there are no real issues for a section, return an empty array. Do NOT invent.
-- estimatedScoreGain: realistic integer 0-20 based on violation count.
+- topFixes: impact === "critical" or "serious" only, max 3. If fewer real violations exist, return fewer — never pad.
+- quickWins: impact === "moderate" or "minor" only, max 2.
+- Every entry MUST use the exact selector from nodes[0].target[0]. No invented selectors.
+- message format: "<what is broken> on <element description> — <fix action or measured value>". E.g.: "contrast ratio 2.1:1 on .cta-button — minimum 4.5:1 required"
+- Do NOT write motivation ("to improve readability for low-vision users"). State facts only.
+- estimatedScoreGain: integer 0–20. Base on: critical=5pts, serious=3pts, moderate=1pt, minor=0.5pt per violation, capped at 20.
+- If topFixes or quickWins have zero real violations, return an empty array []. Never invent issues.
 
 Violations:
 ${JSON.stringify(topViolations, null, 2)}
 
-Return JSON only, no markdown, no prose:
+Return JSON only, no markdown, no prose. Follow this exact schema:
 {
   "topFixes": [
-    { "severity": "critical", "message": "...", "element": ".actual-selector", "value": "2.1:1" }
+    { "severity": "critical", "message": "...", "element": ".exact-selector", "value": "optional measured value e.g. 2.1:1" }
   ],
   "quickWins": [
-    { "severity": "warn", "message": "...", "element": ".actual-selector" }
+    { "severity": "warn", "message": "...", "element": ".exact-selector" }
   ],
-  "estimatedScoreGain": 12
+  "estimatedScoreGain": 0
 }`;
 
   try {
