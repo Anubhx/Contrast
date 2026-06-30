@@ -30,11 +30,15 @@ export async function explainFindings(
   // If no violations, return empty — never pad with invented ones
   if (!violations || violations.length === 0) return fallback;
 
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey) {
-    console.warn('No GOOGLE_GENERATIVE_AI_API_KEY — skipping Gemini explanation.');
+  const keysEnv = process.env.GOOGLE_GENERATIVE_AI_API_KEYS || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!keysEnv) {
+    console.warn('No GOOGLE_GENERATIVE_AI_API_KEYS or GOOGLE_GENERATIVE_AI_API_KEY — skipping Gemini explanation.');
     return fallback;
   }
+
+  // Split by comma and pick a random key (basic rotation) to avoid rate limits
+  const keys = keysEnv.split(',').filter(k => k.trim().length > 0);
+  const apiKey = keys[Math.floor(Math.random() * keys.length)].trim();
 
   // Distill violations to the most useful shape for the prompt
   const topViolations = violations.slice(0, 10).map(v => ({
